@@ -8,5 +8,4 @@ print("Lorenzas first edit")
 print("remi's edit")
 print("Hello hello hello, remi's second edit")
 
-print('hello')
-print("hello")
+print("hello this is Paul")
