@@ -1,6 +1,6 @@
 from numpy import *
 from math import pi
-# from MOI import *
+from MOI import *
 
 ######################## Part I - parameters as in assignment #######################################
 
@@ -25,9 +25,11 @@ P = 49.2*1000  # N
 r=ha/2 #m
 ladiag=sqrt((Ca-r)**2+(r)**2)
 
-# boomLoc, boomArea, z, y= centroid()
+boomLoc, boomArea, z, y= centroid()
+I_zz= inertiaZZ(boomArea)
+I_yy= inertiaYY(boomArea, z)
 # thickness=[t_skin, t_spar, t_skin, t_skin, t_spar,t_skin]
-# y_skin=[r*np.sin(theta),y,y,y,y,y]
+
 def trapezoid(f,s): # f should be a list with all the values of your function at a given coordinate s[i], s should be a list with the coordinates in the given integration interval
     integral=0
     N=len(s)
@@ -41,7 +43,9 @@ def trapezoid(f,s): # f should be a list with all the values of your function at
 s1=linspace(0,pi/2,100000) # (start,stop,number of steps). s is the angle going from 0 to 90deg
 s2=linspace(0,r,100000)
 s3=linspace(0,ladiag,100000)
-s4=linspace(0,ladiag,100000)
+s4=s3
+s5=s2
+s6=s1
 y1=[]
 for i in range(len(s1)):
     y1_i=r*sin(s1[i])
@@ -52,16 +56,28 @@ for i in range(len(s3)):
     y3_i=(ladiag-s3[i])*sin(theta)
     y3.append(y3_i)
 y4= [element * -1 for element in y3]
-y5= []
-y6=[element * -1 for element in y1]
-
+y5= [element * -1 for element in y2]
+y6= [element * -1 for element in y1]
 
 
 f1=[element * tsk for element in y1] # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
-f2=[element * tsk for element in y2]
+f2=[element * tsp for element in y2]
 f3=[element * tsk for element in y3]
-
-
-
+f4=[element * tsk for element in y4]
+f5=[element * tsp for element in y5]
+f6=[element * tsk for element in y6]
+# print(trapezoid(f1,s1))
+# print(trapezoid(f2,s2))
 # print(trapezoid(f3,s3))
+# print(trapezoid(f4,s4))
+# print(trapezoid(f5,s5))
+# print(trapezoid(f6,s6))
+# qb1= -I_zz**(-1)*(trapezoid(f1,s1)+boomArea*boomLoc[1][1])+qb6
+# qb2= -I_zz**(-1)*(trapezoid(f2,s2))
+# qb3= -I_zz**(-1)*(trapezoid(f3,s3)+boomArea*boomLoc[2][1]+boomArea*boomLoc[3][1]+boomArea*boomLoc[4][1]+boomArea*boomLoc[5][1])+qb1+qb2
+# qb4= -I_zz**(-1)*(trapezoid(f4,s4)+boomArea*boomLoc[6][1]+boomArea*boomLoc[7][1]+boomArea*boomLoc[8][1]+boomArea*boomLoc[9][1])+qb3
+# qb5= -I_zz**(-1)*(trapezoid(f5,s5))
+# qb6= -I_zz**(-1)*(trapezoid(f6,s6)+boomArea*boomLoc[10][1])+qb4-qb5
+
+
 
