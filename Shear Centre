@@ -1,6 +1,6 @@
-import numpy as np
+from numpy import *
 from math import pi
-from MOI import *
+# from MOI import *
 
 ######################## Part I - parameters as in assignment #######################################
 aircraft = "F100" # Write either A320, F100, CRJ700 or Do228 (bear in mind capitals); this is used for aerodynamic loading
@@ -19,28 +19,30 @@ wst = 17./1000   # m
 nst = 11  # -
 d1 = 0.00389  # m
 d3 = 0.01245  # m
-theta = np.radians(30)  # rad
+theta = radians(30)  # rad
 P = 49.2*1000  # N
 r=ha/2 #m
 
-boomLoc, boomArea, z, y= centroid()
-#thickness=[t_skin, t_spar, t_skin, t_skin, t_spar,t_skin]
-#y_skin=[r*np.sin(theta),y,y,y,y,y]
+# boomLoc, boomArea, z, y= centroid()
+# thickness=[t_skin, t_spar, t_skin, t_skin, t_spar,t_skin]
+# y_skin=[r*np.sin(theta),y,y,y,y,y]
 def trapezoid(f,s):
-    int=0
+    integral=0
     N=len(s)
     deltas=s[1]-s[0]
     for i in range (1,N):
-        int+=f(s[i-1])+f(s[i])*deltas/2
-    return int
-s=(0,int(pi/2),1000)
-y=[]
-for i in range (0,int(pi/2),1000):
-    y.append(r*np.sin(s[i]))
-print(y)
+        # int+=f(s[i-1])+f(s[i])*deltas/2
+        integral += (f[i-1]+f[i]) * deltas / 2
+    return integral
+s=linspace(0,pi/2,1000) # (start,stop,number of steps). s is the angle going from 0 to 90deg
+y1=[]
+for i in range(len(s)):
+    y1_i=r*sin(s[i])
+    y1.append(y1_i)
 
-y=np.linspace(0,r*np.sin(s),)
-f= tsk*y
-s= np.linspace(0,int(pi/2),1000)
-
+y1[i]=0
+f=[element * tsk for element in y1]
+y6=[element * -1 for element in y1]
+trapezoid(f,s)
+print(trapezoid(f,s))
 
