@@ -24,10 +24,37 @@ def centroid():
 
     for i in range(0,11):
         Az = []
-        Az.append(boomLoc[i][0])
+        Az.append(boomArea * boomLoc[i][0])
 
+    # location of the centroid is given by (z, y) measured from Leading Edge
     z = sum(Az)/area
-    print(z)
+    print("z = ", z)
+    print("y = ", y)
+    return boomLoc, boomArea, z, y
 
 
-I_zz=1  #temp value for lorenzas code
+def inertiaZZ(boomArea):
+    d = []
+    I_zz = 0
+
+    for i in range(0,11):
+        d.append(boomLoc[i][1])
+        I_zz = I_zz + boomArea * (d[i])**2
+    print("I_zz is", I_zz)
+    return I_zz
+
+
+def inertiaYY(boomArea, z):
+    d = []
+    I_yy = 0
+
+    for i in range(0, 11):
+        d.append(z - boomLoc[i][1])
+        I_yy = I_yy + boomArea * (d[i])**2
+    print("I_yy is", I_yy)
+    return I_yy
+
+centroid()
+boomLoc, boomArea, z, y = centroid()
+inertiaZZ(boomArea)
+inertiaYY(boomArea, z)
