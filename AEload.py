@@ -3,6 +3,7 @@ from math import cos
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+plt.style.use('ggplot')
 
 
 Nz = 81
@@ -51,43 +52,49 @@ def FileReader(path):
             line = line.split(",")
             line = [float(val) for val in line]
             rows.append(line)
+
     mat = np.array(rows)
     return mat
 
 
-
+def plotter(XCoord,mat,idx):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Chordwise Location')
+    ax.set_ylabel('Value')
+    ax.set_title("Aerodynamic Data for Chord Slice")
+    #x = np.arange(mat.shape[1])
+    #plt.plot(XCoord,mat[idx,:],"r+")
+    #plt.show()
 
 mat = FileReader("C:/Users/Paul Simon Schön/Downloads/aerodynamicloadf100.dat")
 ThetaZ = thetaZ(Nz)
 ZCoord = ZCoordinate(ca,Nz,ThetaZ)
 ThetaX = thetaZ(Nx)
 XCoord = XCoordinate(la,Nx,ThetaX)
+plotter(XCoord,mat,0)
+
+''''
 
 
-
-
-
-print(mat.shape)
-
-def surface_plot (matrix, **kwargs):
+def surface_plot (XCoord,ZCoord,matrix, **kwargs):
     # acquire the cartesian coordinate matrices from the matrix
     # x is cols, y is rows
     (x, y) = np.meshgrid(81, 41)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    surf = ax.plot_surface(x, y, matrix, **kwargs)
+    surf = ax.plot_surface(XCoord, ZCoord, matrix, **kwargs)
     return (fig, ax, surf)
 
+print(mat.shape)
+(fig2, ax2, surf) = surface_plot(ZCoord,XCoord,mat,cmap=plt.cm.coolwarm)
 
-(fig, ax, surf) = surface_plot(mat, cmap=plt.cm.coolwarm)
+fig2.colorbar(surf)
 
-fig.colorbar(surf)
-
-ax.set_xlabel('Z (cols)')
-ax.set_ylabel('X (rows)')
-ax.set_zlabel('values')
+ax2.set_xlabel('Z (cols)')
+ax2.set_ylabel('X (rows)')
+ax2.set_zlabel('values')
 
 plt.show()
 
-
-
+''''
