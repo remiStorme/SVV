@@ -1,0 +1,5 @@
+from MOI import I_zz
+print(I_zz)
+
+
+
