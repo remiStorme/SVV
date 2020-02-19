@@ -1,7 +1,6 @@
 import numpy as np
 from math import pi
 from MOI import *
-from AEload import *
 
 ######################## Part I - parameters as in assignment #######################################
 aircraft = "F100" # Write either A320, F100, CRJ700 or Do228 (bear in mind capitals); this is used for aerodynamic loading
@@ -20,14 +19,14 @@ wst = 17./1000   # m
 nst = 11  # -
 d1 = 0.00389  # m
 d3 = 0.01245  # m
-theta = m.radians(30)  # rad
+theta = np.radians(30)  # rad
 P = 49.2*1000  # N
 r=ha/2 #m
 
 boomLoc, boomArea, z, y= centroid()
 #thickness=[t_skin, t_spar, t_skin, t_skin, t_spar,t_skin]
 #y_skin=[r*np.sin(theta),y,y,y,y,y]
-def trapezoid(f,s)
+def trapezoid(f,s):
     int=0
     N=len(s)
     deltas=s[1]-s[0]
@@ -36,12 +35,12 @@ def trapezoid(f,s)
     return int
 s=(0,int(pi/2),1000)
 y=[]
-for i in range ((0,int(pi/2),1000)):
+for i in range (0,int(pi/2),1000):
     y.append(r*np.sin(s[i]))
-print y
+print(y)
 
-y=linspace(0,r*np.sin(s),)
+y=np.linspace(0,r*np.sin(s),)
 f= tsk*y
-s= linspace(0,int(pi/2),1000)
+s= np.linspace(0,int(pi/2),1000)
 
 
