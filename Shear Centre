@@ -1,0 +1,10 @@
+from MOI import I_zz
+
+A_boom= 3.456*10**(-5) #m^2
+I_zz=I_zz
+
+
+print(A_boom)
+print(I_zz)
+
+
