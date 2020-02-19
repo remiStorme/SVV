@@ -1,4 +1,4 @@
-
+from math import sin, cos, sqrt
 
 def centroid():
     # Boom Coordinates measured from the Leading Edge in [m]
@@ -21,40 +21,54 @@ def centroid():
     boomLoc = [zy1, zy2, zy3, zy4, zy5, zy6, zy7, zy8, zy9, zy10, zy11]
     boomArea = 3.456 * 10**(-5)    # [m^2]
     area = 11 * boomArea
+    Az = []
 
     for i in range(0,11):
-        Az = []
         Az.append(boomArea * boomLoc[i][0])
+
 
     # location of the centroid is given by (z, y) measured from Leading Edge
     z = sum(Az)/area
-    print("z = ", z)
-    print("y = ", y)
+    print("z = ", z, "[m]")
+    print("y = ", y, "[m]")
     return boomLoc, boomArea, z, y
 
 
 def inertiaZZ(boomArea):
     d = []
+    t = 0.0011
+    beta = 0.186058177
+    a = sqrt(0.08**2 + (0.505 - 0.08)**2)
+    I_z_skin = 2 * ((t * a**3 * (sin(beta))**2)/12 + t * a * ((a/2) * sin(beta))**2)    # Still need to add the circular section
+
     I_zz = 0
 
-    for i in range(0,11):
+    for i in range(0,11):                               # MOI of the booms
         d.append(boomLoc[i][1])
         I_zz = I_zz + boomArea * (d[i])**2
-    print("I_zz is", I_zz)
+
+    I_zz = I_zz + I_z_skin                              # MOI_booms + MOI_skin
+    print("I_zz is", I_zz, "[m^4]")
     return I_zz
 
 
 def inertiaYY(boomArea, z):
     d = []
+    t = 0.0011
+    beta = 0.186058177
+    a = sqrt(0.08**2 + (0.505 - 0.08)**2)
+    I_y_skin = 2 * ((t * a**3 * (cos(beta))**2)/12 + t * a * (0.505 - z - (a/2) * cos(beta))**2)       # Still need to add MOI of the circular section
+
     I_yy = 0
 
-    for i in range(0, 11):
+    for i in range(0, 11):                          # MOI of the booms
         d.append(z - boomLoc[i][1])
         I_yy = I_yy + boomArea * (d[i])**2
-    print("I_yy is", I_yy)
+
+    I_yy = I_yy + I_y_skin                           # MOI_booms + MOI_skin
+    print("I_yy is", I_yy, "[m^4]")
     return I_yy
 
-centroid()
 boomLoc, boomArea, z, y = centroid()
 inertiaZZ(boomArea)
 inertiaYY(boomArea, z)
