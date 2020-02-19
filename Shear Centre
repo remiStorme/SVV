@@ -3,6 +3,7 @@ from math import pi
 # from MOI import *
 
 ######################## Part I - parameters as in assignment #######################################
+
 aircraft = "F100" # Write either A320, F100, CRJ700 or Do228 (bear in mind capitals); this is used for aerodynamic loading
 Ca = 0.505  # m
 la = 1.611  # m
@@ -26,23 +27,26 @@ r=ha/2 #m
 # boomLoc, boomArea, z, y= centroid()
 # thickness=[t_skin, t_spar, t_skin, t_skin, t_spar,t_skin]
 # y_skin=[r*np.sin(theta),y,y,y,y,y]
-def trapezoid(f,s):
+def trapezoid(f,s): # f should be a list with all the values of your function at a given coordinate s[i], s should be a list with the coordinates in the given integration interval
     integral=0
     N=len(s)
-    deltas=s[1]-s[0]
-    for i in range (1,N):
-        # int+=f(s[i-1])+f(s[i])*deltas/2
-        integral += (f[i-1]+f[i]) * deltas / 2
+    ds=s[1]-s[0]
+    for i in range (1,N): # The higher the N, the higher the resolution of the integral
+        integral += (f[i-1]+f[i]) * ds / 2
     return integral
-s=linspace(0,pi/2,1000) # (start,stop,number of steps). s is the angle going from 0 to 90deg
+
+
+
+s1=linspace(0,pi/2,100000) # (start,stop,number of steps). s is the angle going from 0 to 90deg
 y1=[]
-for i in range(len(s)):
-    y1_i=r*sin(s[i])
+for i in range(len(s1)):
+    y1_i=r*sin(s1[i])
     y1.append(y1_i)
 
 y1[i]=0
-f=[element * tsk for element in y1]
+f=[element * tsk for element in y1] # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
 y6=[element * -1 for element in y1]
-trapezoid(f,s)
-print(trapezoid(f,s))
+
+
+print(trapezoid(f,s1))
 
