@@ -38,15 +38,27 @@ def trapezoid(f,s): # f should be a list with all the values of your function at
 
 
 s1=linspace(0,pi/2,100000) # (start,stop,number of steps). s is the angle going from 0 to 90deg
+s2=linspace(0,r,100000)
+s3=linspace(0.08,0,100000)
 y1=[]
 for i in range(len(s1)):
     y1_i=r*sin(s1[i])
     y1.append(y1_i)
-
-y1[i]=0
-f=[element * tsk for element in y1] # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
+y2=s2
+y3=[]
+for i in range(len(s3)):
+    y3_i=r*sin(s1[i])
+    y3.append(y1_i)
 y6=[element * -1 for element in y1]
 
 
-print(trapezoid(f,s1))
+
+f1=[element * tsk for element in y1] # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
+f2=[element * tsk for element in y2]
+
+
+
+
+
+print(trapezoid(f2,s2))
 
