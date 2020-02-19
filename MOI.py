@@ -29,8 +29,8 @@ def centroid():
 
     # location of the centroid is given by (z, y) measured from Leading Edge
     z = sum(Az)/area
-    print("z = ", z, "[m]")
-    print("y = ", y, "[m]")
+    # print("z = ", z, "[m]")
+    # print("y = ", y, "[m]")
     return boomLoc, boomArea, z, y
 
 
@@ -48,7 +48,7 @@ def inertiaZZ(boomArea):
         I_zz = I_zz + boomArea * (d[i])**2
 
     I_zz = I_zz + I_z_skin                              # MOI_booms + MOI_skin
-    print("I_zz is", I_zz, "[m^4]")
+    # print("I_zz is", I_zz, "[m^4]")
     return I_zz
 
 
@@ -66,7 +66,7 @@ def inertiaYY(boomArea, z):
         I_yy = I_yy + boomArea * (d[i])**2
 
     I_yy = I_yy + I_y_skin                           # MOI_booms + MOI_skin
-    print("I_yy is", I_yy, "[m^4]")
+    # print("I_yy is", I_yy, "[m^4]")
     return I_yy
 
 boomLoc, boomArea, z, y = centroid()
