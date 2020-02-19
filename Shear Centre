@@ -1,10 +1,47 @@
-from MOI import I_zz
+import numpy as np
+from math import pi
+from MOI import *
+from AEload import *
 
-A_boom= 3.456*10**(-5) #m^2
-I_zz=I_zz
+######################## Part I - parameters as in assignment #######################################
+aircraft = "F100" # Write either A320, F100, CRJ700 or Do228 (bear in mind capitals); this is used for aerodynamic loading
+Ca = 0.505  # m
+la = 1.611  # m
+x1 = 0.125  # m
+x2 = 0.498  # m
+x3 = 1.494  # m
+xa = 0.25   # m
+ha = 0.16  # m
+tsk = 1.1/1000  # m
+tsp = 2.4/1000  # m
+tst = 1.2/1000  # m
+hst = 13./1000   # m
+wst = 17./1000   # m
+nst = 11  # -
+d1 = 0.00389  # m
+d3 = 0.01245  # m
+theta = m.radians(30)  # rad
+P = 49.2*1000  # N
+r=ha/2 #m
 
+boomLoc, boomArea, z, y= centroid()
+#thickness=[t_skin, t_spar, t_skin, t_skin, t_spar,t_skin]
+#y_skin=[r*np.sin(theta),y,y,y,y,y]
+def trapezoid(f,s)
+    int=0
+    N=len(s)
+    deltas=s[1]-s[0]
+    for i in range (1,N):
+        int+=f(s[i-1])+f(s[i])*deltas/2
+    return int
+s=(0,int(pi/2),1000)
+y=[]
+for i in range ((0,int(pi/2),1000)):
+    y.append(r*np.sin(s[i]))
+print y
 
-print(A_boom)
-print(I_zz)
+y=linspace(0,r*np.sin(s),)
+f= tsk*y
+s= linspace(0,int(pi/2),1000)
 
 
