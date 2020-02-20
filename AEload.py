@@ -77,7 +77,7 @@ mat = FileReader("C:/Users/Paul Simon Schön/Downloads/aerodynamicloadf100.dat")
 X,Z = Coordinates()
 plotter(XCoord,mat,0)
 
-''''
+'''
 
 
 def surface_plot (XCoord,ZCoord,matrix, **kwargs):
@@ -100,4 +100,4 @@ ax2.set_zlabel('values')
 
 plt.show()
 
-''''
+'''
