@@ -1,19 +1,22 @@
 import MOI
-import AEload.py
+import AEload
+import SC_copy
 
 boomLoc = locBooms()
 boomArea, z, y = centroid(boomLoc)
-inertiaZZ(boomArea)
-inertiaYY(boomArea, z)
+mat = FileReader("C:/Users/Paul Simon Schön/Downloads/aerodynamicloadf100.dat")
+X, Z = Coordinates()
 
 
 
 class aileron:
+
     def __init__(self,moi_zz,moi_xx,shear_c,ca,la):
-        self.moi_zz = moi_zz
+        self.moi_zz = inertiaZZ(boomArea)
         self.shear_c = shear_c
-        self.centroid = centroid
-        self.moi_xx = moi_xx
+        self.centroid_z = z
+        self.centroid_y = y
+        self.moi_yy = inertiaYY(boomArea, z)
         self.ca = 0.505 #m
         self.la = 1.611 #m
         self.x_pos = []
@@ -23,6 +26,12 @@ class aileron:
         self.hinge_3 = 1.494 #m
         self.xa = 0.245 #m
         self.P = 49.2 #kN
+        self.mat = mat
+        self.Xcoord = X
+        self.ZCoord = Z
+
+
+
 
 
 
