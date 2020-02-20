@@ -6,13 +6,25 @@ import numpy as np
 plt.style.use('ggplot')
 
 
-Nz = 81
-Nx = 41
+Nz = 41
+Nx = 81
 ca = 0.505
 la = 1.611
 
 
 def Coordinates():
+
+    def thetaX(Nx):
+        thx = []
+        for i in range(1,Nx+2):
+            thx.append((i-1)*pi/Nx)
+        return thx
+
+    def XCoordinate(ca,Nx,thx):
+        x = []
+        for i in range(0,Nx):
+            x.append(0.25*la*((1-cos(thx[i]))+(1-cos(thx[i+1]))))
+        return x
 
     def thetaZ(Nz):
         thz = []
@@ -23,24 +35,12 @@ def Coordinates():
     def ZCoordinate(ca,Nz,thz):
         z = []
         for i in range(0,Nz):
-            z.append(-0.25*ca*((1-cos(thz[i]))+(1-cos(thz[i+1]))))
+            z.append(0.25*ca*((1-cos(thz[i]))+(1-cos(thz[i+1]))))
         return z
-
-    def thetaX(Nx):
-        thx = []
-        for i in range(1,Nx+2):
-            thx.append((i-1)*pi/Nx)
-        return thx
-
-    def XCoordinate(la,Nx,thx):
-        x = []
-        for i in range(0,Nx):
-            x.append(0.25*la*((1-cos(thx[i]))+(1-cos(thx[i+1]))))
-        return x
 
     ThetaZ = thetaZ(Nz)
     ZCoord = ZCoordinate(ca, Nz, ThetaZ)
-    ThetaX = thetaZ(Nx)
+    ThetaX = thetaX(Nx)
     XCoord = XCoordinate(la, Nx, ThetaX)
 
     return ZCoord,XCoord
@@ -72,10 +72,10 @@ def plotter(XCoord,mat,idx):
     #plt.plot(XCoord,mat[idx,:],"r+")
     #plt.show()
 
-mat = FileReader("C:/Users/Paul Simon Schön/Downloads/aerodynamicloadf100.dat")
+#mat = FileReader("C:/Users/Paul Simon Schön/Downloads/aerodynamicloadf100.dat")
 
-X,Z = Coordinates()
-plotter(XCoord,mat,0)
+#X,Z = Coordinates()
+#plotter(X,mat,0)
 
 '''
 
