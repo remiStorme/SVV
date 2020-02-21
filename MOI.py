@@ -1,14 +1,5 @@
 from math import sin, cos, sqrt
 import numpy as np
-#from SC_copy import *
-
-""""
-def f(theta):
-    return -0.08*np.cos(theta)
-
-def g(theta):
-    return (-0.08+0.0011)*np.cos(theta)
-"""
 
 class CrossSection:
 
@@ -108,15 +99,14 @@ class CrossSection:
             d.append(z - boomLoc[i][1])
             I_yy = I_yy + self.boomArea * (d[i])**2
 
-        I_yy = I_yy + I_y_skin                           # MOI_booms + MOI_skin
+        I_yy = I_yy + I_y_skin                          # MOI_booms + MOI_skin
         print("I_yy =", I_yy, "[m^4]")
         return I_yy
 
 
-
+                                                        # Calling the functions
 cs = CrossSection()
 locbooms = cs.locBooms()
 centroid = cs.centroid()
 Iz = cs.inertiaZZ()
 Iy = cs.inertiaYY()
-
