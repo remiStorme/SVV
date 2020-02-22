@@ -36,7 +36,7 @@ class CrossSection:
             yy.append((self.le + 3 * self.arc - i * self.arc) * np.sin(self.theta))
         for j in range(0, 4):
             yy.append(-(self.le + j * self.arc) * np.sin(self.theta))
-        yy.append(y2)
+        yy.append(-y2)
                                                                 # Merging of y and z coordinates in a list
         boomLoc = []
         for k in range(len(yy)):
