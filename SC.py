@@ -1,9 +1,10 @@
+######################## IMPORTS ########################################################
+
 from numpy import *
 from math import pi
 from MOI import CrossSection
 
-######################## GEOMETRY F100 #######################################
-
+######################## GEOMETRY F100 ########################################################
 
 Ca = 0.505  # m
 la = 1.611  # m
@@ -31,9 +32,12 @@ z, y = cs.centroid()
 I_zz = cs.inertiaYY()
 I_yy = cs.inertiaZZ()
 
-#############################################################################
-discpts = 1000
+######################## DISCRETIZATION PARAMETERS ################################################
+
+discpts = 1000 # !!!!!!!! do evenly discretized cross section, not like it is now
 nbooms = 11
+
+######################## FUNCTIONS DEFINITION #####################################################
 
 def gety():
     s=[]
@@ -105,34 +109,38 @@ def getf():
 
 def getqbs():
     qbs=[]
-    qbs_i=[]
+    qbs_j=[]
     boomlst = [[1], [], [2, 3, 4, 5], [6, 7, 8, 9], [], [10]]
     for i in range(len(s)): #for all the 6 segments
-        for j in range(len(s[i])): #for all the discretized points in the segment
-           for m in (bindxlst[i]): #for all the booms in the segment
-                if j<m:
-                    print("i=",i,"j=",j,"m=",m) #check
-                    qbs_i.append(-1 * I_zz * trapezoid(f[i],s[i])[j])
-                elif j==m:
-                    qbs_i.append(-1 * I_zz * boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)]][1])
-                    print("started from the bottom now we here") #check
-                elif j>m:
-                    qbs_i.append(-1 * I_zz * trapezoid(f[i],s[i])[j-1]) #why j-1 find out
-                    print("i=",i,"j=",j,"m=",m)
-                else:
-                    print("uhm wuuuuut lorenza get it togetha")
-        qbs.append(qbs_i)
-    return qbs
+        if i==0 or i==2 or i==3 or i==5:
+            print(i)
+            m=bindxlst[i][0]
+            for j in range(len(s[i])): #for all the discretized points in the segment
+                    if j<m:
+                        print("i=",i,"j=",j,"m=",m)
+                        qbs_j.append(-1 * I_zz * trapezoid(f[i],s[i])[j])
+                    elif j==m:
+                        qbs_j.append(-1 * I_zz * boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)]][1])
+                        if bindxlst[i].index(m)!= (len(bindxlst[i])-1):
+                            m=bindxlst[i][bindxlst[i].index(m)+1]
+                        print("started from the bottom now we here: boom number",boomlst[i][bindxlst[i].index(m)],"m=",m) #check
+                    elif j>m:
+                        qbs_j.append(-1 * I_zz * trapezoid(f[i],s[i])[j-1]) # j-1 because trapezoid() leads to a list of values of areas that sum up to an integral, so number of elements in trapezoid is always 1 less than integrated function
+                        print("i=",i,"j=",j,"m=",m)
+        else:
+            for j in range(len(s[i])):
+                print("i=", i, "j=", j, "m=", m)
+                qbs_j.append(-1 * I_zz * trapezoid(f[i], s[i])[j-1])
+        qbs.append(qbs_j)
+    return qbs,qbs_j
 
 ############################# PROGRAM ###################################################
 
 s,y=gety()
-bindxlst=boomindxlst()
-print(bindxlst)
+bindxlst=boomindxlst()  # !!!!!!!! why are the indexes turnt around in s3
 f=getf()
-qbs=getqbs()
-print(len(qbs))
-
+qbs,qbs_j=getqbs()
+print(bindxlst)
 
 ########################### END PROGRAM #################################################
 
