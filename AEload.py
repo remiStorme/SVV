@@ -11,7 +11,6 @@ Nx = 81
 ca = 0.505
 la = 1.611
 
-
 def Coordinates():
 
     def thetaX(Nx):
