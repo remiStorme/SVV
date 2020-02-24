@@ -67,12 +67,12 @@ class Interpolate:
 
         for j, i in enumerate(ii):
             ff[j] = S(self.xx[j], self.x_data[i], a[i], b[i], c[i], d[i])
-            ifff[j] = S(self.xx[j], self.x_data[i], a[i], b[i], c[i], d[i])*self.delta_x[i]
+            #ifff[j] = S(self.xx[j], self.x_data[i], a[i], b[i], c[i], d[i])*self.delta_x[i]
             iff[j] = IS(self.delta_x[i], a[i], b[i], c[i], d[i])
 
 
 
-        return ff,sum(iff),sum(ifff)
+        return ff,sum(iff)#,sum(ifff)
 
 
 
@@ -88,6 +88,6 @@ Z,X = Coordinates()
 
 
 func = Interpolate(X,mat[:,0])
-_,integral1,integral2 = func.spline_natural()
+_,integral1#,integral2 = func.spline_natural()
 
-print(f"integral func*deltax:{integral1}\nintegral integrand:{integral2}")
+print(f"integral func*deltax:{integral1}\nintegral integrand:{None}")

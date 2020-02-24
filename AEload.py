@@ -20,7 +20,7 @@ def Coordinates():
             thx.append((i-1)*pi/Nx)
         return thx
 
-    def XCoordinate(ca,Nx,thx):
+    def XCoordinate(la,Nx,thx):
         x = []
         for i in range(0,Nx):
             x.append(0.25*la*((1-cos(thx[i]))+(1-cos(thx[i+1]))))
