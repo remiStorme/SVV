@@ -11,7 +11,7 @@ class Interpolate_Integrate:
         self.delta_y = np.diff(y_data)
         self.size = len(x_data)
         self.subspaces = self.size - 1
-        self.xx = np.linspace(self.x0, self.xn, self.size)
+        self.xx = np.linspace(self.x0, self.xn, 101)
 
     def sys_matrix(self):
         A = np.zeros((self.size, self.size))
