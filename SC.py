@@ -3,6 +3,7 @@
 from numpy import *
 from math import pi
 from MOI import CrossSection
+# import matplotlib.pyplot as plt
 
 ######################## GEOMETRY F100 ########################################################
 
@@ -39,7 +40,7 @@ nbooms = 11 #!!!!!!!!! include boom 0 for when Sx will be introduced
 
 ####################### IMPROVEMENTS TO IMPLEMENT ################################################
 
-# !!!!!!!!!!!! apply simmetry
+# !!!!!!!!!!!! apply simmetry coz
 # !!!!!!!!!! include variable Sy=1 Newton
 # !!!!!!!!!!!! fix calc of qs0 such that shear flow due to Sx can then be computed too
 
@@ -66,7 +67,9 @@ def gety():
         y3.append(y3_i)
     y4 = [element-r for element in y3]
     y5 = [element * -1 for element in y2]
-    y6 = [element * -1 for element in y1]
+    y6=[]
+    for i in range(len(y1)):
+        y6.append(-y1[N-1-i])
     y.extend((y1,y2,y3,y4,y5,y6))
     return s, y
 
@@ -120,23 +123,23 @@ def getqbs():
         qbs_i=[]
         if i==0 or i==2 or i==3 or i==5:
             m=bindxlst[i][0]
+            shearjump=0
             for j in range(len(s[i])): #for all the discretized points in the segment
                 if j<m:
                     print("i=",i,"j=",j,"m=",m)
-                    qbs_i.append(-1/I_zz * trapezoid(f[i],s[i])[j])
+                    qbs_i.append(-1/I_zz * trapezoid(f[i],s[i])[j]+shearjump)
                 elif j==m:
                     print("i=", i, "j=", j, "m=", m)
                     qbs_i.append(-1/I_zz * (boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)]][1])+qbs_i[-1])
                     print("started from the bottom now we here: boom number", boomlst[i][bindxlst[i].index(m)],
                           "m=", m)
-                if bindxlst[i].index(m)!= (len(bindxlst[i])-1):
-                        m=bindxlst[i][bindxlst[i].index(m)+1]
+                    shearjump += (-1 / I_zz * (boomArea * boomLoc[boomlst[i][bindxlst[i].index(m)]][1]))
+                    print("shearjump", shearjump)
                 elif j>m:
                     print("i=", i, "j=", j, "m=", m)
-                    shearjump=(-1/I_zz * (boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)-1]][1]))
-                    print("shearjump",shearjump)
                     qbs_i.append((-1/I_zz * trapezoid(f[i],s[i])[j-1])+shearjump) # j-1 because trapezoid() leads to a list of values of areas that sum up to an integral, so number of elements in trapezoid is always 1 less than integrated function. qbsi[-1] adds the constant value of jump in shear due to the boom which is equal to the shear flow at the boom minus the one before
-
+                    if bindxlst[i].index(m) != (len(bindxlst[i]) - 1): # if you didnt reach the last boom in the section yet
+                        m = bindxlst[i][bindxlst[i].index(m) + 1] # go to next boom --> increase index m
                 print("SHEAR FLOW",qbs_i[-1])
         else:
             for j in range(len(s[i])):
@@ -144,6 +147,7 @@ def getqbs():
                 qbs_i.append(-1 * I_zz * trapezoid(f[i], s[i])[j-1])
                 print("SHEAR FLOW", qbs_i[-1])
         qbs.append(qbs_i)
+    print(qbs[5][-1],qbs[0][-1])
     qbs[2]=[element + (qbs[0][-1]+qbs[1][-1]) for element in qbs[2]] # flow in section 1 and 2 is added to flow computed for section 3
     qbs[3]=[element + qbs[2][-1] for element in qbs[3]] # flow in section 3 is added to flow computed for section 4
     qbs[5]=[element + (qbs[3][-1]-qbs[4][-1]) for element in qbs[5]] # flow in section 4 is added and flow in 5 subtracted to flow computed for section 6
@@ -163,12 +167,10 @@ def getqs0():
 
 s,y=gety()
 bindxlst=boomindxlst()
-print(bindxlst)
 f=getf()
 qbs=getqbs()
 qs0,den=getqs0()
-
-
+print(bindxlst)
 
 
 ########################### END PROGRAM #################################################
