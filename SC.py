@@ -34,31 +34,37 @@ I_yy = cs.inertiaZZ()
 
 ######################## DISCRETIZATION PARAMETERS ################################################
 
-discpts = 1000 # !!!!!!!! do evenly discretized cross section, not like it is now
-nbooms = 11
+N = 100 # !!!!!!!! do evenly discretized cross section, not like it is now
+nbooms = 11 #!!!!!!!!! include boom 0 for when Sx will be introduced
+
+####################### IMPROVEMENTS TO IMPLEMENT ################################################
+
+# !!!!!!!!!!!! apply simmetry
+# !!!!!!!!!! include variable Sy=1 Newton
+# !!!!!!!!!!!! fix calc of qs0 such that shear flow due to Sx can then be computed too
 
 ######################## FUNCTIONS DEFINITION #####################################################
 
 def gety():
     s=[]
-    s1 = linspace(0, (pi / 2), discpts)  # (start,stop,number of steps). s is the angle going from 0 to boom1
-    s2 = linspace(0, r, discpts)
-    s3 = linspace(0, ladiag, discpts)
+    s1 = linspace(0, (pi / 2), N)  # (start,stop,number of steps). s is the angle going from 0 to boom1, so its actually theta and the integral infact is in dtheta not ds
+    s2 = linspace(0, r, N)
+    s3 = linspace(0, ladiag, N)
     s4 = s3
     s5 = s2
     s6 = s1
     s.extend((s1,s2,s3,s4,s5,s6))
     y=[]
     y1 = []
-    for i in range(len(s1)):
-        y1_i = r * sin(s1[i])
+    for i in range(len(s[0])):
+        y1_i = r * sin(s[0][i])
         y1.append(y1_i)
-    y2 = s2
+    y2 = s[1]
     y3 = []
-    for i in range(len(s3)):
-        y3_i = (ladiag - s3[i]) * sin(theta)
+    for i in range(len(s[2])):
+        y3_i = ((ladiag - s[2][i])/ladiag) *r
         y3.append(y3_i)
-    y4 = [element * -1 for element in y3]
+    y4 = [element-r for element in y3]
     y5 = [element * -1 for element in y2]
     y6 = [element * -1 for element in y1]
     y.extend((y1,y2,y3,y4,y5,y6))
@@ -89,72 +95,83 @@ def boomindxlst():
 def trapezoid(f,s):  # f should be a list with all the values of your function at a given coordinate s[i], s should be a list with the coordinates in the given integration interval
     integral = 0
     intlist = []
-    N = len(s)
+    M = len(s)
     ds = s[1] - s[0]
-    for i in range(1, N):  # The higher the N, the higher the resolution of the integral
+    for i in range(1, M):  # The higher the N, the higher the resolution of the integral
         integral += (f[i - 1] + f[i]) * ds / 2
-        intlist.append(integral)
+        intlist.append(integral) # The i-th element in intlist represents the value of the integral at position i --> the last element of the list that "trapezoid" generates is the value of the integral
     return intlist
 
 def getf():
     f=[]
-    f1 = [element * tsk for element in y[0]]  # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
-    f2 = [element * tsp for element in y[1]]
-    f3 = [element * tsk for element in y[2]]
-    f4 = [element * tsk for element in y[3]]
-    f5 = [element * tsp for element in y[4]]
-    f6 = [element * tsk for element in y[5]]
+    f1 = [element * tsk*r for element in y[0]]  # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
+    f2 = [element * tsp*r for element in y[1]]
+    f3 = [element * tsk*r for element in y[2]]
+    f4 = [element * tsk*r for element in y[3]]
+    f5 = [element * tsp*r for element in y[4]]
+    f6 = [element * tsk*r for element in y[5]]
     f.extend((f1,f2,f3,f4,f5,f6))
     return f
 
 def getqbs():
     qbs=[]
-    qbs_j=[]
     boomlst = [[1], [], [2, 3, 4, 5], [6, 7, 8, 9], [], [10]]
     for i in range(len(s)): #for all the 6 segments
+        qbs_i=[]
         if i==0 or i==2 or i==3 or i==5:
-            print(i)
             m=bindxlst[i][0]
             for j in range(len(s[i])): #for all the discretized points in the segment
-                    if j<m:
-                        print("i=",i,"j=",j,"m=",m)
-                        qbs_j.append(-1 * I_zz * trapezoid(f[i],s[i])[j])
-                    elif j==m:
-                        qbs_j.append(-1 * I_zz * boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)]][1])
-                        if bindxlst[i].index(m)!= (len(bindxlst[i])-1):
-                            m=bindxlst[i][bindxlst[i].index(m)+1]
-                        print("started from the bottom now we here: boom number",boomlst[i][bindxlst[i].index(m)],"m=",m) #check
-                    elif j>m:
-                        qbs_j.append(-1 * I_zz * trapezoid(f[i],s[i])[j-1]) # j-1 because trapezoid() leads to a list of values of areas that sum up to an integral, so number of elements in trapezoid is always 1 less than integrated function
-                        print("i=",i,"j=",j,"m=",m)
+                if j<m:
+                    print("i=",i,"j=",j,"m=",m)
+                    qbs_i.append(-1/I_zz * trapezoid(f[i],s[i])[j])
+                elif j==m:
+                    print("i=", i, "j=", j, "m=", m)
+                    qbs_i.append(-1/I_zz * (boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)]][1])+qbs_i[-1])
+                    print("started from the bottom now we here: boom number", boomlst[i][bindxlst[i].index(m)],
+                          "m=", m)
+                if bindxlst[i].index(m)!= (len(bindxlst[i])-1):
+                        m=bindxlst[i][bindxlst[i].index(m)+1]
+                elif j>m:
+                    print("i=", i, "j=", j, "m=", m)
+                    shearjump=(-1/I_zz * (boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)-1]][1]))
+                    print("shearjump",shearjump)
+                    qbs_i.append((-1/I_zz * trapezoid(f[i],s[i])[j-1])+shearjump) # j-1 because trapezoid() leads to a list of values of areas that sum up to an integral, so number of elements in trapezoid is always 1 less than integrated function. qbsi[-1] adds the constant value of jump in shear due to the boom which is equal to the shear flow at the boom minus the one before
+
+                print("SHEAR FLOW",qbs_i[-1])
         else:
             for j in range(len(s[i])):
                 print("i=", i, "j=", j, "m=", m)
-                qbs_j.append(-1 * I_zz * trapezoid(f[i], s[i])[j-1])
-        qbs.append(qbs_j)
-    return qbs,qbs_j
+                qbs_i.append(-1 * I_zz * trapezoid(f[i], s[i])[j-1])
+                print("SHEAR FLOW", qbs_i[-1])
+        qbs.append(qbs_i)
+    qbs[2]=[element + (qbs[0][-1]+qbs[1][-1]) for element in qbs[2]] # flow in section 1 and 2 is added to flow computed for section 3
+    qbs[3]=[element + qbs[2][-1] for element in qbs[3]] # flow in section 3 is added to flow computed for section 4
+    qbs[5]=[element + (qbs[3][-1]-qbs[4][-1]) for element in qbs[5]] # flow in section 4 is added and flow in 5 subtracted to flow computed for section 6
+    return qbs
 
+def getqs0():
+    num_i=[]
+    den_i=[]
+    for i in range(1,5):
+        num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
+        den_i.append(trapezoid(N*[1],s[i])[-1])
+    num=sum(num_i)
+    den=sum(den_i)
+    qs0 = -num / den
+    return qs0,den
 ############################# PROGRAM ###################################################
 
 s,y=gety()
-bindxlst=boomindxlst()  # !!!!!!!! why are the indexes turnt around in s3
-f=getf()
-qbs,qbs_j=getqbs()
+bindxlst=boomindxlst()
 print(bindxlst)
+f=getf()
+qbs=getqbs()
+qs0,den=getqs0()
+
+
+
 
 ########################### END PROGRAM #################################################
 
 
-
-#     qb=[]
-#     qb1 = -I_zz ** (-1) * (int[0] + boomArea * boomLoc[1][1])
-#     qb2 = -I_zz ** (-1) * (int[1])
-#     qb3 = -I_zz ** (-1) * (int[2] + boomArea * boomLoc[2][1] + boomArea * boomLoc[3][1] + boomArea * boomLoc[4][1] + boomArea *
-#                 boomLoc[5][1]) + qb1 + qb2
-#     qb4 = -I_zz ** (-1) * (int[3] + boomArea * boomLoc[6][1] + boomArea * boomLoc[7][1] + boomArea * boomLoc[8][1] + boomArea *
-#                 boomLoc[9][1]) + qb3
-#     qb5 = -I_zz ** (-1) * (int[4])
-#     qb6 = -I_zz ** (-1) * (int[5] + boomArea * boomLoc[10][1]) + qb4 - qb5
-#     qb.extend((qb1,qb2,qb3,qb4,qb5,qb6))
-#     return qb
 
