@@ -82,7 +82,7 @@ class CrossSection:
 
 
         I_zz = I_zz + I_z_skin                              # MOI_booms + MOI_skin
-        print("I_zz =", I_zz, "[m^4]")
+        # print("I_zz =", I_zz, "[m^4]")
         return I_zz
 
 
@@ -100,7 +100,7 @@ class CrossSection:
             I_yy = I_yy + self.boomArea * (d[i])**2
 
         I_yy = I_yy + I_y_skin                          # MOI_booms + MOI_skin
-        print("I_yy =", I_yy, "[m^4]")
+        # print("I_yy =", I_yy, "[m^4]")
         return I_yy
 
 
