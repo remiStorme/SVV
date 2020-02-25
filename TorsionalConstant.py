@@ -1,11 +1,11 @@
 import numpy as np
 from MOI import Iy, Iz, locbooms
-
+from SC import gety, trapezoid, qbs
 
 # Input Parameters
 Ca = 0.505
 h = 0.16
-t = 0.0011
+tsk = 0.0011
 tsp = 0.0024
 tst = 0.0012
 hst = 0.013
@@ -15,12 +15,22 @@ Izz = Iz
 Iyy = Iy
 r = h / 2
 l = np.sqrt(r ** 2 + (Ca - r) ** 2)
+circ = np.pi * r / 2
 alpha = np.arcsin(r / l)
-T = 1  # to be changed once we have the interpolation
+T = 1
 G = 1
 Bi = wst * tst + hst * tst
+s,_ = gety()
+A_i = np.pi * r ** 2 / 2
+A_ii = h * (Ca - r) / 2
+
+# TC is the matrix in terms of q0,1 and q0,2 for the compatibility equation and the total torque equation
+TC = np.array([[((2 * circ)/(A_i * tsk)) + ((2 * r)/(A_i * tsp)) + ((2 * r)/(A_ii * tsk)), (-(2 * r)/(A_i * tsp)) - ((2 * r)/(A_ii * tsp)) - ((2 * l)/(A_ii * tsk))], [2 * A_i, 2 * A_ii]])
+
+S =
 
 """
+
 # Boom Locations
 cir = np.pi * r / 2
 P = cir + l
@@ -44,7 +54,7 @@ B1 = Bi * sum(y_1)
 B3 = Bi * sum(y_3)
 #print(B1)
 #print(B3)
-"""
+
 
 y_1 = []
 y_3 = []
@@ -58,6 +68,8 @@ B3 = Bi * sum(y_3)
 # Tornsional stiffness
 A_i = np.pi * r ** 2 / 2
 A_ii = h * (Ca - r) / 2
+
+
 
 D = np.array([[-1 * ((np.pi * r / t) + 2 * r / tsp) - 2 * r / t, -1 * (-2 * r / tsp) + l / t + 2 * r / tsp],
               [2 * A_i, 2 * A_ii]])
@@ -76,3 +88,7 @@ J = 1 / (G * (1 / (t * Izz) * (2 * t * r ** 3 - 2 * B1 * r * np.pi / 2) + r ** 3
             np.pi * r / t + 2 * r / tsp) - 2 * r * q02_n))
 
 print(J)
+print(qbs)
+"""
+
+print(TC)
