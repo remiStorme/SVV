@@ -126,54 +126,73 @@ def getqbs():
             shearjump=0
             for j in range(len(s[i])): #for all the discretized points in the segment
                 if j<m:
-                    print("i=",i,"j=",j,"m=",m)
+                    # print("i=",i,"j=",j,"m=",m)
                     qbs_i.append(-1/I_zz * trapezoid(f[i],s[i])[j]+shearjump)
                 elif j==m:
-                    print("i=", i, "j=", j, "m=", m)
+                    # print("i=", i, "j=", j, "m=", m)
                     qbs_i.append(-1/I_zz * (boomArea*boomLoc[boomlst[i][bindxlst[i].index(m)]][1])+qbs_i[-1])
-                    print("started from the bottom now we here: boom number", boomlst[i][bindxlst[i].index(m)],
-                          "m=", m)
+                    # print("started from the bottom now we here: boom number", boomlst[i][bindxlst[i].index(m)],"m=", m)
                     shearjump += (-1 / I_zz * (boomArea * boomLoc[boomlst[i][bindxlst[i].index(m)]][1]))
-                    print("shearjump", shearjump)
+                    # print("shearjump", shearjump)
                 elif j>m:
-                    print("i=", i, "j=", j, "m=", m)
+                    # print("i=", i, "j=", j, "m=", m)
                     qbs_i.append((-1/I_zz * trapezoid(f[i],s[i])[j-1])+shearjump) # j-1 because trapezoid() leads to a list of values of areas that sum up to an integral, so number of elements in trapezoid is always 1 less than integrated function. qbsi[-1] adds the constant value of jump in shear due to the boom which is equal to the shear flow at the boom minus the one before
                     if bindxlst[i].index(m) != (len(bindxlst[i]) - 1): # if you didnt reach the last boom in the section yet
                         m = bindxlst[i][bindxlst[i].index(m) + 1] # go to next boom --> increase index m
-                print("SHEAR FLOW",qbs_i[-1])
+                # print("SHEAR FLOW",qbs_i[-1])
         else:
             for j in range(len(s[i])):
-                print("i=", i, "j=", j, "m=", m)
+                # print("i=", i, "j=", j, "m=", m)
                 qbs_i.append(-1 * I_zz * trapezoid(f[i], s[i])[j-1])
-                print("SHEAR FLOW", qbs_i[-1])
+                # print("SHEAR FLOW", qbs_i[-1])
         qbs.append(qbs_i)
-    print(qbs[5][-1],qbs[0][-1])
     qbs[2]=[element + (qbs[0][-1]+qbs[1][-1]) for element in qbs[2]] # flow in section 1 and 2 is added to flow computed for section 3
     qbs[3]=[element + qbs[2][-1] for element in qbs[3]] # flow in section 3 is added to flow computed for section 4
     qbs[5]=[element + (qbs[3][-1]-qbs[4][-1]) for element in qbs[5]] # flow in section 4 is added and flow in 5 subtracted to flow computed for section 6
     return qbs
 
-def getqs0():
-    num_i=[]
-    den_i=[]
-    for i in range(1,5):
-        num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
-        den_i.append(trapezoid(N*[1],s[i])[-1])
-    num=sum(num_i)
-    den=sum(den_i)
-    qs0 = -num / den
-    return qs0,den
+def getintqbs():
+    intqbs=[]
+    for k in range(len(s)):
+        intqbs.append(trapezoid(qbs[k],s[k])[-1])
+    return intqbs
 ############################# PROGRAM ###################################################
 
 s,y=gety()
 bindxlst=boomindxlst()
 f=getf()
 qbs=getqbs()
-qs0,den=getqs0()
-print(bindxlst)
+intqbs=getintqbs()
+print(intqbs)
+c1=-(pi/(2*tsk))*intqbs[0]-(1/tsp)*intqbs[1]-1/tsp*intqbs[4]-pi/(2*tsk)*intqbs[5]
+
+c2=-r/tsp*intqbs[1]-ladiag/tsk*intqbs[2]-ladiag/tsk*intqbs[3]-r/tsp*intqbs[4]
+print(c1,c2)
 
 
 ########################### END PROGRAM #################################################
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+# def getqs0():
+#     num_i=[]
+#     den_i=[]
+#     for i in range(1,5):
+#         num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
+#         den_i.append(trapezoid(N*[1],s[i])[-1])
+#     num=sum(num_i)
+#     den=sum(den_i)
+#     qs0 = -num / den
+#     return qs0,den
