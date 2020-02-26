@@ -1,5 +1,6 @@
 import Internal_Forces_and_Deflections as ifd
 from MOI import Iz, Iy
+import matplotlib.pyplot as plt
 import numpy as np
 import math as m
 
@@ -28,6 +29,12 @@ def normStresses():
         sigmax.append((y_my[i] * x_mz[i])/Iy + (y_mz[i] * x_my[i])/Iz)
 
     sigmax = [list(val) for val in sigmax]
-    print(sigmax)
+    #print(sigmax)
 
+    plt.plot(x_mz, sigmax)
+    plt.xlabel('x-position (m)')
+    plt.ylabel('Sigma x (Pa)')
+    plt.show()
+
+    return sigmax
 normStresses()
