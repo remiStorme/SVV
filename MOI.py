@@ -110,3 +110,11 @@ locbooms = cs.locBooms()
 centroid = cs.centroid()
 Iz = cs.inertiaZZ()
 Iy = cs.inertiaYY()
+
+# The error of the values of Izz and Iyy compared to the ones from the verification model
+
+e_yy = ((Iy - 4.5925790464352304 * 10**(-5))/(4.5925790464352304 * 10**(-5))) * 100     # %
+e_zz = ((Iz - 4.686331664359035 * 10**(-6))/(4.686331664359035 * 10**(-6))) * 100       # %
+
+print('The error on Iyy is', e_yy,'%')
+print('The error on Izz is', e_zz,'%')
