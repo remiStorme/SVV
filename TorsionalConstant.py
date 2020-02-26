@@ -1,7 +1,7 @@
 import numpy as np
 from MOI import Iy, Iz, locbooms
 from SC import gety, trapezoid, qbs
-import Interpolator_Integrate_Cubic as ii
+# import Interpolator_Integrate_Cubic as ii
 
 # Input Parameters
 Ca = 0.505
@@ -27,11 +27,24 @@ A_ii = h * (Ca - r) / 2
 
 q_int = []
 s = [list(val) for val in s]
-num_i=[]
+num_i= []
 for i in range(6):
     num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
 # print(num_i)
+'''
+D = np.array([[-1 * ((np.pi * r / tsk) + 2 * r / tsp) - 2 * r / tsk, -1 * (-2 * r / tsp) + l / tsk + 2 * r / tsp], [2 * A_i, 2 * A_ii]])
 
+E = np.array([[- num_i[0] / tsk + num_i[1] / tsp - num_i[4] / tsp + num_i[5] / tsk + (num_i[2] / tsk + num_i[3] / tsk - num_i[4] / tsp + num_i[1] / tsp)], [T]])
+
+F = np.linalg.solve(D, E)
+
+q01n = F[0]
+q02n = F[1]
+
+J = T / ((1 / (2 * A_i))(num_i[0] / tsk - num_i[1] / tsp + num_i[4] / tsp + num_i[5] / tsk + q01n[0] * ((np.pi * r / tsk) + 2 * r / tsp) + q02n[0] * (-2 * r / tsp)))
+
+print(J)
+'''
 # TC is the matrix in terms of q0,1 and q0,2 for the compatibility equation and the total torque equation
 TC = np.array([[((2 * circ)/(A_i * tsk)) + ((2 * r)/(A_i * tsp)) + ((2 * r)/(A_ii * tsk)), (-(2 * r)/(A_i * tsp)) - ((2 * r)/(A_ii * tsp)) - ((2 * l)/(A_ii * tsk))], [2 * A_i, 2 * A_ii]])
 
@@ -43,14 +56,23 @@ S = np.linalg.solve(TC, P)
 q01_n = S[0]
 q02_n = S[1]
 
-
-alpha_twist = ((1)/(2 * A_i * G)) * (((num_i[0] + num_i[5])/(tsk)) + ((num_i[1] + num_i[4])/(tsp)) + q01_n[0] * (((s[0][-1] + s[5][-1])/(A_i * tsk)) + ((s[1][-1] + s[4][-1])/(A_i * tsp))) - q02_n[0] * ((s[1][-1] + s[4][-1])/(A_i * tsp)))
+alpha_twist = ((1)/(2 * A_i * G * 10**3)) * (((num_i[0] + num_i[5])/(tsk)) + ((num_i[1] + num_i[4])/(tsp)) + q01_n[0] * (((s[0][-1] + s[5][-1])/(A_i * tsk)) + ((s[1][-1] + s[4][-1])/(A_i * tsp))) - q02_n[0] * ((s[1][-1] + s[4][-1])/(A_i * tsp)))
 
 J = ((T)/(G * alpha_twist))
 
-print(J)
+print("J Method I =", J)
 
+'''
+J1 = ((r * (np.pi/2) * tsk**3)/(3))
+J2 = ((r * tsp**3)/(3))
+J3 = ((l * tsk**3)/(3))
+J4 = J3
+J5 = J2
+J6 = J1
 
+JJ = J1 + J2 + J3 + J4 + J5 + J6
+print("J Method II =", JJ)
+'''
 
 
 """

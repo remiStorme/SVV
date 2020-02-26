@@ -1,102 +1,77 @@
-from math import pi
-from math import cos
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import Interpolator_Integrate_Cubic as ii
+
+
 plt.style.use('ggplot')
 
+z_sc    = -0.08374216610427212
+J       = 0.000017425282835837415
+I_yy    = 4.5925790464352304*10**-5
+I_zz    = 4.686331664359035*10**-6
 
-Nz = 41
-Nx = 81
+
+
+Nz = 81
+Nx = 41
 ca = 0.505
 la = 1.611
 
-def Coordinates():
+#_____Fetching aerodynamic file
 
-    def thetaX(Nx):
-        thx = []
-        for i in range(1,Nx+2):
-            thx.append((i-1)*pi/Nx)
-        return thx
+#including convertion to N/m**2
+ae_data = 1000*np.genfromtxt("aerodynamicloadf100.dat", delimiter = ',')
 
-    def XCoordinate(la,Nx,thx):
-        x = []
-        for i in range(0,Nx):
-            x.append(0.25*la*((1-cos(thx[i]))+(1-cos(thx[i+1]))))
-        return x
+#_____Creating angles for mesh coordinates
+th_x  = np.zeros(Nx + 1)
+th_z  = np.zeros(Nz + 1)
 
-    def thetaZ(Nz):
-        thz = []
-        for i in range(1,Nz+2):
-            thz.append((i-1)*pi/Nz)
-        return thz
-
-    def ZCoordinate(ca,Nz,thz):
-        z = []
-        for i in range(0,Nz):
-            z.append(0.25*ca*((1-cos(thz[i]))+(1-cos(thz[i+1]))))
-        return z
-
-    ThetaZ = thetaZ(Nz)
-    ZCoord = ZCoordinate(ca, Nz, ThetaZ)
-    ThetaX = thetaX(Nx)
-    XCoord = XCoordinate(la, Nx, ThetaX)
-
-    return ZCoord,XCoord
+for i in range(Nx+1):
+    th_x[i] = i*np.pi/Nx
+for i in range(Nz+1):
+    th_z[i] = i*np.pi/Nz
 
 
-def FileReader(path):
+#_____Finding corrected mesh coordinates
+x   = np.zeros(Nx)
+z   = np.zeros(Nz)
 
-    rows = []
-    with open(path,"r+") as f:
-        lines = f.readlines()
-        i = 0
-        for line in lines:
-            line = line.strip()
-            line = line.split(",")
-            line = [float(val) for val in line]
-            rows.append(line)
+for i in range(Nx):
+    x[i]    = (la*(1-np.cos(th_x[i]))/2+la*(1-np.cos(th_x[i+1]))/2)/2
 
-    mat = np.array(rows)
-    return mat
+for i in range(Nz):
+    z[i]    = (ca*(1-np.cos(th_z[i]))/2+ca*(1-np.cos(th_z[i+1]))/2)/2
 
 
-def plotter(XCoord,mat,idx):
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xlabel('Chordwise Location')
-    ax.set_ylabel('Value')
-    ax.set_title("Aerodynamic Data for Chord Slice")
-    #x = np.arange(mat.shape[1])
-    #plt.plot(XCoord,mat[idx,:],"r+")
-    #plt.show()
-
-#mat = FileReader("C:/Users/Paul Simon Schön/Downloads/aerodynamicloadf100.dat")
-
-#X,Z = Coordinates()
-#plotter(X,mat,0)
-
-'''
+#_____SPANWISE LIFT AND TORQUE DISTRIBUTION
+#_____this is the functions that will be integrated in matrix b of the reaction forces system
+#_____in order to construct these functions, the lift and torque due to it is integrated in z at
+#each spanwise station
+w_x = np.zeros(Nx)          #resultant lift distribution value for each spanwise location
+t_w = np.zeros(Nx)          #the torque due to the ae-load at each spanwise location
 
 
-def surface_plot (XCoord,ZCoord,matrix, **kwargs):
-    # acquire the cartesian coordinate matrices from the matrix
-    # x is cols, y is rows
-    (x, y) = np.meshgrid(81, 41)
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    surf = ax.plot_surface(XCoord, ZCoord, matrix, **kwargs)
-    return (fig, ax, surf)
+for i in range(Nx):
+    chord_lifts   = ae_data[:,i]   #select relevant data for the chosen spanwise location
+    wtotal_x      = 0              #resultant contribution of lift for that spanwise location
+    torque_x      = 0              #integral of the torque
 
-print(mat.shape)
-(fig2, ax2, surf) = surface_plot(ZCoord,XCoord,mat,cmap=plt.cm.coolwarm)
+    object        = ii.Interpolate_Integrate(z,chord_lifts) #creating a continuous function for chordwise lift
+    wtotal_x     += object.int_spline_natural(1, ca)
+    w_x[i]        = wtotal_x
 
-fig2.colorbar(surf)
 
-ax2.set_xlabel('Z (cols)')
-ax2.set_ylabel('X (rows)')
-ax2.set_zlabel('values')
+    torque_function = chord_lifts*(z + z_sc)      #creating an array representing the torque contribution
+                                                  #of each chordwise lift value
+    torque_object   = ii.Interpolate_Integrate(z,torque_function)
+    torque_x       += torque_object.int_spline_natural(1,ca)
+    t_w[i]          = torque_x
 
-plt.show()
+# plt.plot(x,t_w)
+# plt.show()
+#
 
-'''
+
+
+
+
