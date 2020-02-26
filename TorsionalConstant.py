@@ -1,6 +1,7 @@
 import numpy as np
 from MOI import Iy, Iz, locbooms
 from SC import gety, trapezoid, qbs
+import Interpolator_Integrate_Cubic as ii
 
 # Input Parameters
 Ca = 0.505
@@ -24,11 +25,47 @@ s,_ = gety()
 A_i = np.pi * r ** 2 / 2
 A_ii = h * (Ca - r) / 2
 
+q_int = []
+s = [list(val) for val in s]
+num_i=[]
+for i in range(6):
+    num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
+# print(num_i)
+
 # TC is the matrix in terms of q0,1 and q0,2 for the compatibility equation and the total torque equation
 TC = np.array([[((2 * circ)/(A_i * tsk)) + ((2 * r)/(A_i * tsp)) + ((2 * r)/(A_ii * tsk)), (-(2 * r)/(A_i * tsp)) - ((2 * r)/(A_ii * tsp)) - ((2 * l)/(A_ii * tsk))], [2 * A_i, 2 * A_ii]])
 
-S =
+P = np.array([[((num_i[2] + num_i[3])/(A_ii * tsk)) + ((num_i[1] + num_i[4])/(A_ii * tsp)) - ((num_i[0] + num_i[5])/(A_i * tsk)) - ((num_i[1] + num_i[4])/(A_i * tsp))], [1]])
+# print(P)
 
+S = np.linalg.solve(TC, P)
+
+q01_n = S[0]
+q02_n = S[1]
+
+
+alpha_twist = ((1)/(2 * A_i * G)) * (((num_i[0] + num_i[5])/(tsk)) + ((num_i[1] + num_i[4])/(tsp)) + q01_n[0] * (((s[0][-1] + s[5][-1])/(A_i * tsk)) + ((s[1][-1] + s[4][-1])/(A_i * tsp))) - q02_n[0] * ((s[1][-1] + s[4][-1])/(A_i * tsp)))
+
+J = ((T)/(G * alpha_twist))
+
+print(J)
+
+
+
+
+"""
+q_int = []
+s = [list(val) for val in s]
+
+for i in range(len(s)):
+    q_object = ii.Interpolate_Integrate(s[i],qbs[i])
+    # print(q_int)
+    lim = s[i][-1]
+    temp_int = q_object.int_spline_natural(1,lim)
+    q_int.append(temp_int)
+
+print(q_int)
+"""
 """
 
 # Boom Locations
@@ -90,5 +127,3 @@ J = 1 / (G * (1 / (t * Izz) * (2 * t * r ** 3 - 2 * B1 * r * np.pi / 2) + r ** 3
 print(J)
 print(qbs)
 """
-
-print(TC)
