@@ -1,6 +1,6 @@
 import numpy as np
 from MOI import Iy, Iz, locbooms
-from SC import gety, trapezoid, qbs
+from SC import getsy, trapezoid, qbs
 # import Interpolator_Integrate_Cubic as ii
 
 # Input Parameters
@@ -21,7 +21,7 @@ alpha = np.arcsin(r / l)
 T = 1
 G = 1
 Bi = wst * tst + hst * tst
-s,_ = gety()
+s,_ = getsy()
 A_i = np.pi * r ** 2 / 2
 A_ii = h * (Ca - r) / 2
 
@@ -30,8 +30,38 @@ s = [list(val) for val in s]
 num_i= []
 for i in range(6):
     num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
-# print(num_i)
+
+#Now we find the torsional stiffness
+
+D = np.array([[-np.pi*r/(tsk * A_i) - 2*r/(tsp * A_i)- 2*r/(tsp * A_ii), 2*l/(tsk * A_ii) + 2*r/(tsp * A_ii) + 2*r/(tsp * A_i)],
+              [2 * A_i, 2 * A_ii]])
+
+E = np.array([[num_i[0]/tsk - 2*num_i[1]/tsp + 2*num_i[4]/tsp - num_i[5]/tsk - num_i[2]/tsk - num_i[3]/tsk],
+           [T]])
+
+F = np.linalg.solve(D, E)
+
+q01n = F[0]
+q02n = F[1]
+
+twist1 = (1/2/A_i)*(num_i[0]/tsk - num_i[1]/tsp + num_i[4]/tsp - num_i[5]/tsk +(np.pi*r/tsk+2*r/tsp)*q01n - 2*r/tsp*q02n)
+twist2 = (1/2/A_ii)*(num_i[1]/tsp + num_i[2]/tsk + num_i[3]/tsk - num_i[4]/tsp + (2*l/tsk+2*r/tsp)*q02n - 2*r/tsp*q01n)
+
+J = T / twist1
+print(J)
+
+# Error compared to the answer of the verification model
+
+e = ((J - 7.649955726444055 * 10**(-6))/(7.649955726444055 * 10**(-6))) * 100 # in percent
+print('The error is =', e[0],'%')
 '''
+q_int = []
+s = [list(val) for val in s]
+num_i= []
+for i in range(6):
+    num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
+# print(num_i)
+
 D = np.array([[-1 * ((np.pi * r / tsk) + 2 * r / tsp) - 2 * r / tsk, -1 * (-2 * r / tsp) + l / tsk + 2 * r / tsp], [2 * A_i, 2 * A_ii]])
 
 E = np.array([[- num_i[0] / tsk + num_i[1] / tsp - num_i[4] / tsp + num_i[5] / tsk + (num_i[2] / tsk + num_i[3] / tsk - num_i[4] / tsp + num_i[1] / tsp)], [T]])
@@ -44,6 +74,7 @@ q02n = F[1]
 J = T / ((1 / (2 * A_i))(num_i[0] / tsk - num_i[1] / tsp + num_i[4] / tsp + num_i[5] / tsk + q01n[0] * ((np.pi * r / tsk) + 2 * r / tsp) + q02n[0] * (-2 * r / tsp)))
 
 print(J)
+'''
 '''
 # TC is the matrix in terms of q0,1 and q0,2 for the compatibility equation and the total torque equation
 TC = np.array([[((2 * circ)/(A_i * tsk)) + ((2 * r)/(A_i * tsp)) + ((2 * r)/(A_ii * tsk)), (-(2 * r)/(A_i * tsp)) - ((2 * r)/(A_ii * tsp)) - ((2 * l)/(A_ii * tsk))], [2 * A_i, 2 * A_ii]])
@@ -62,6 +93,7 @@ J = ((T)/(G * alpha_twist))
 
 print("J Method I =", J)
 
+'''
 '''
 J1 = ((r * (np.pi/2) * tsk**3)/(3))
 J2 = ((r * tsp**3)/(3))
@@ -123,29 +155,4 @@ for j in range(6):
     y_3.append(locbooms[j][1])
 B1 = Bi * sum(y_1)
 B3 = Bi * sum(y_3)
-
-# Tornsional stiffness
-A_i = np.pi * r ** 2 / 2
-A_ii = h * (Ca - r) / 2
-
-
-
-D = np.array([[-1 * ((np.pi * r / t) + 2 * r / tsp) - 2 * r / t, -1 * (-2 * r / tsp) + l / t + 2 * r / tsp],
-              [2 * A_i, 2 * A_ii]])
-
-E = np.array([[-r ** 3 / (3 * Izz) + (1 / (Izz * t)) * (-2 * t * r ** 3 + (2 * B1) * r * np.pi / 2) + -1 * (
-            r ** 3 / (3 * Izz) + (1 / (Izz * t)) * (
-                2 * t * r * l ** 2 / 3 + 2 * t * r ** 2 * l + tsp * r ** 2 * l + 2 * (B1 + B3) * l + B3 * l))],
-              [1]])
-
-F = np.linalg.solve(D, E)
-
-q01_n = F[0]
-q02_n = F[1]
-
-J = 1 / (G * (1 / (t * Izz) * (2 * t * r ** 3 - 2 * B1 * r * np.pi / 2) + r ** 3 / (3 * Izz) + q01_n * (
-            np.pi * r / t + 2 * r / tsp) - 2 * r * q02_n))
-
-print(J)
-print(qbs)
 """
