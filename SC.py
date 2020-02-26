@@ -88,7 +88,7 @@ def findboom():
                     err.append((abs(boomLoc[k][1] - y[i][j])))
                 bindxlst_i.append(err.index(min(err)))
         else: #for sections without booms
-            bindxlst_i.append([])
+            bindxlst_i.append("")
         bindxlst.append(bindxlst_i)
     print(bindxlst)
     return bindxlst
@@ -157,23 +157,41 @@ def getqbs():
 
 def getqs0():  # calculates redundant shear flow qs01, qs02 for the two cells
     intqbs = []  # calculates integral of base shear flow over each section
-    for k in range(len(s)):
-        intqbs.append(trapezoid(qbs[k], s[k])[-1])
+    for i in range(len(s)):
+        intqbs.append(trapezoid(qbs[i], s[i])[-1])
     c1 = -(pi / (2 * tsk)) * intqbs[0] - (1 / tsp) * intqbs[1] - 1 / tsp * intqbs[4] - pi / (2 * tsk) * intqbs[5]
     c2 = -r / tsp * intqbs[1] - ladiag / tsk * intqbs[2] - ladiag / tsk * intqbs[3] - r / tsp * intqbs[4]
     A = array([[pi / tsk - 2 / tsp, 2 / tsp], [-2 * r / tsp, 2 * r / tsp + 2 * ladiag / tsk]])
     b = array([[c1], [c2]])
     qs0 = dot(linalg.inv(A), b)
-    return qs0
+    qs01 = qs0[0][0]
+    qs02 = qs0[1][0]
+    return qs01,qs02
+
+def getqfinal():
+    q=[]
+    for i in range(len(s)):
+        q_i=[]
+        if i==0 or i==6:
+            for j in range(len(s[i])):
+                q_i.append(qbs[i][j]+qs01)
+        if i==1 or i==4:
+            for j in range(len(s[i])):
+                q_i.append(qbs[i][j]-qs01+qs02)
+        if i==2 or i==3:
+            for j in range(len(s[i])):
+                q_i.append(qbs[i][j]+qs02)
+        q.append(q_i)
+    return q
 
 
 ############################# PROGRAM ###################################################
-s, y = getsy()
+s,y = getsy()
 bindxlst = findboom()
 f = getf()
 qbs = getqbs()
-qs0 = getqs0()
-print(qs0)
+qs01,qs02 = getqs0()
+q=getqfinal()
 
 ########################### END PROGRAM #################################################
 
