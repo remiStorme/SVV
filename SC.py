@@ -36,7 +36,7 @@ I_yy = cs.inertiaZZ()
 
 ######################## DISCRETIZATION PARAMETERS ################################################
 
-N = 100 # !!!!!!!! do evenly discretized cross section, not like it is now
+N = 1000 # !!!!!!!! do evenly discretized cross section, not like it is now
 nbooms = 11 #!!!!!!!!! include boom 0 for when Sx will be introduced
 
 
@@ -93,8 +93,7 @@ def findboom():
     print(bindxlst)
     return bindxlst
 
-def trapezoid(f,
-              s):  # f should be a list with all the values of your function at a given coordinate s[i], s should be a list with the coordinates in the given integration interval
+def trapezoid(f,s):  # f should be a list with all the values of your function at a given coordinate s[i], s should be a list with the coordinates in the given integration interval
     integral = 0
     intlist = []
     M = len(s)
@@ -172,7 +171,7 @@ def getqfinal():
     q=[]
     for i in range(len(s)):
         q_i=[]
-        if i==0 or i==6:
+        if i==0 or i==5:
             for j in range(len(s[i])):
                 q_i.append(qbs[i][j]+qs01)
         if i==1 or i==4:
@@ -184,6 +183,16 @@ def getqfinal():
         q.append(q_i)
     return q
 
+def getsc():
+    intq0r = trapezoid(q[0], s[0])[-1] * r
+    q2d=[]
+    for i in range(len(q[2])):
+        q2d_i = (Ca - r)*(1 - y[2][i] / r) *q[2][i]
+        q2d.append(q2d_i)
+    intq2d=(trapezoid(q2d, s[2])[-1])
+
+    etha = 2 * (intq0r + intq2d)
+    return etha
 
 ############################# PROGRAM ###################################################
 s,y = getsy()
@@ -192,6 +201,8 @@ f = getf()
 qbs = getqbs()
 qs01,qs02 = getqs0()
 q=getqfinal()
+etha=getsc()
+print(etha)
 
 ########################### END PROGRAM #################################################
 
