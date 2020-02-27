@@ -10,8 +10,8 @@ la_lim = 1.40 #m
 x1 = 0.125  # m
 x2 = 0.498  # m
 x3 = 1.494  # m
-xa = 0.25   # m
-ha = 0.16  # m
+xa = 0.245   # m
+ha = 0.161  # m
 r = ha/2
 tsk = 1.1/1000  # m
 tsp = 2.4/1000  # m
@@ -29,8 +29,8 @@ xaj     = x2 - xa/2
 xp      = x2 + xa/2
 
 #SECTION PROPERTIES
-z_sc    = -0.08374216610427212
-J       = 0.000017425282835837415
+z_sc    = -0.08499063497059493
+J       = 7.649955726444055*10**-6
 I_yy    = 4.5925790464352304*10**-5
 I_zz    = 4.686331664359035*10**-6
 
@@ -142,7 +142,7 @@ A[5,10] = 1
 A[5,11] = 0
 
 #row 6 --> BC7 --> deflection(w+c) @ jammed actuator xaj
-A[6,0]  = (xaj-x1)**3*((m.sin(theta)/E/I_zz/6) + (xaj-x1)*((ha/2/G/J)*m.cos(theta)*(ha/2 + z_sc) + (ha/2/G/J)*m.sin(theta)*(ha/2 + z_sc)))
+A[6,0]  = (xaj-x1)**3*(m.sin(theta)/E/I_zz) + (xaj-x1)*(1/G/J)*(ha/2 + z_sc)*((ha/2)*m.cos(theta) + z_sc*m.sin(theta))
 A[6,1]  = 0
 A[6,2]  = 0
 A[6,3]  = (xaj-x1)**3*(m.cos(theta)/E/I_yy/6)
@@ -153,7 +153,7 @@ A[6,7]  = m.sin(theta)*xaj
 A[6,8]  = m.sin(theta)
 A[6,9]  = m.cos(theta)*xaj
 A[6,10] = m.cos(theta)
-A[6,11] = (ha/2)*(m.cos(theta) + m.sin(theta))
+A[6,11] = (ha/2)*m.cos(theta) + z_sc*m.sin(theta)
 
 #row 7 --> BC_Fy
 A[7,0]  = 1
@@ -243,7 +243,7 @@ b[4,0]   = d3*np.cos(theta) + (1/I_zz/E)*((lift_object.int_spline_natural(4,min(
 
 b[5,0]   = -d3*np.sin(theta) + (1/I_yy/E)*(P/6)*np.cos(theta)*(x3 - xp)**3
 
-b[6,0]   = (np.sin(theta)/E/I_zz)*(lift_object.int_spline_natural(4,xaj)) + (-ha/2/G/J)*(np.cos(theta) - np.sin(theta))*(torque_object.int_spline_natural(2,xaj))
+b[6,0]   = (np.sin(theta)/E/I_zz)*(lift_object.int_spline_natural(4,xaj)) -torque_object.int_spline_natural(2,xaj)*(1/G/J)*((ha/2)*m.cos(theta) + z_sc*m.sin(theta))
 
 b[7,0]   = lift_object.int_spline_natural(1,la_lim) + P*np.sin(theta)
 
@@ -265,7 +265,7 @@ uks = np.linalg.solve(A,b)
 
 R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],uks[8],uks[9],uks[10],uks[11]
 
-#print(R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5)
+print(R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5)
 
 #print(lift_object.int_spline_natural(2,la))
 
