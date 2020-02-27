@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import math as m
 import Reaction_Forces_Aero_Load as rf
 import Interpolator_Integrate_Cubic as ii
@@ -12,8 +12,8 @@ la_lim = 1.40 #m
 x1 = 0.125  # m
 x2 = 0.498  # m
 x3 = 1.494  # m
-xa = 0.25   # m
-ha = 0.16  # m
+xa = 0.245   # m
+ha = 0.161  # m
 r = ha/2
 tsk = 1.1/1000  # m
 tsp = 2.4/1000  # m
@@ -40,8 +40,8 @@ xaj     = x2 - xa/2
 xp      = x2 + xa/2
 
 #SECTION PROPERTIES
-z_sc    = -0.08374216610427212
-J       = 0.00017425282835837415
+z_sc    = -0.08499063497059493
+J       = 7.649955726444055*10**-6
 I_yy    = 4.5925790464352304*10**-5
 I_zz    = 4.686331664359035*10**-6
 
@@ -144,6 +144,26 @@ def T_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):  #spanwise to
     return np.array(x), np.array(y)
 
 
+def th_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):  #spanwise torque distribution
+
+    x = np.linspace(0, la, 40)
+    y = []
+
+    torque_object = ii.Interpolate_Integrate(x_ae, t_x)
+
+    for i in x:
+        #print(torque_object.int_spline_natural(2,min(i,la_lim/1.1)))
+        if i < x3:
+            y.append((1/G/J)*(torque_object.int_spline_natural(2,min(i,la_lim/1.1)) + (ha/2 + z_sc)*R_1y*mac(i,x1,1) +
+                          (ha/2 + z_sc)*R_2y*mac(i,x2,1) + (ha/2 + z_sc)*R_3y*mac(i,x3,1) + z_sc*R_A*m.sin(theta)*mac(i,xaj,1) +
+            r * R_A * m.cos(theta) * mac(i, xaj, 1) -z_sc*P*m.sin(theta)*mac(i,xp,1)  - r*P*m.cos(theta) * mac(i, xp, 1))+c5)
+        else:
+            y.append(y[-1])
+
+
+    return np.array(x), np.array(y)
+
+
 x_sy, y_sy = S_y(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P)
 x_sz, y_sz = S_z(la, R_A, R_1z, R_2z, R_3z, x1, x2, x3, xaj, xp, theta, P)
 x_my, y_my = M_y(la, R_A, R_1z, R_2z, R_3z, x1, x2, x3, xaj, xp, theta, P)
@@ -151,7 +171,7 @@ x_mz, y_mz = M_z(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj,xp, theta, P)
 x_v,  y_v  = v_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P)
 x_w,  y_w  = other_x(la, R_A, R_1z, R_2z, R_3z, x1, x2, x3, xaj, xp, theta, P)
 x_T,  y_T  = T_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P)
-
+x_th, y_th = th_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P)
 
 
 # print(x_ae)
@@ -176,5 +196,7 @@ x_T,  y_T  = T_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P)
 # b[0][0].set_title('Spanwise Torque Distribution')
 # b[0][1].plot(x_th,y_th)
 # b[0][1].set_title('Spanwise Twist Distribution')
+# plt.plot(x_th,y_th)
+# plt.show()
 # plt.plot(x_T,y_T)
 # plt.show()

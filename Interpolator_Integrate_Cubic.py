@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 class Interpolate_Integrate:
     def __init__(self, x_data, y_data):
@@ -130,10 +130,10 @@ class Interpolate_Integrate:
 
         return int_sums
 
-    def plot_spline(self):
-        yi = self.spline_natural()
-        plt.plot(self.xx, yi)
-        plt.show()
+    # def plot_spline(self):
+    #     yi = self.spline_natural()
+    #     plt.plot(self.xx, yi)
+    #     plt.show()
 
 #
 # x0,xn = -1,1.0

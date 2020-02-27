@@ -1,12 +1,12 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import Interpolator_Integrate_Cubic as ii
 
 
-plt.style.use('ggplot')
+# plt.style.use('ggplot')
 
-z_sc    = -0.08374216610427212
-J       = 0.000017425282835837415
+z_sc    = -0.08499063497059493
+J       = 7.649955726444055*10**-6
 I_yy    = 4.5925790464352304*10**-5
 I_zz    = 4.686331664359035*10**-6
 

@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import AEload as ae
 import Interpolator_Integrate_Cubic as ii
 
@@ -265,7 +265,7 @@ uks = np.linalg.solve(A,b)
 
 R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],uks[8],uks[9],uks[10],uks[11]
 
-print(R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5)
+# print(R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5)
 
 #print(lift_object.int_spline_natural(2,la))
 
