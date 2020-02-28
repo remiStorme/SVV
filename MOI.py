@@ -65,6 +65,7 @@ class CrossSection:
         # location of the centroid is given by (z, y) measured from Leading Edge
         z = (sum(Az) + Azsk)/area
         # print("The coordinates of the centroid measured from the Leading Edge are (", z, ",", y, ") [m]")
+        #print("Centroid is:", z,y)
         return z, y
 
 
@@ -72,7 +73,8 @@ class CrossSection:
         d = []
         boomLoc = self.locBooms()
         I_z_circ = (np.pi * self.skt * (self.ha / 2)**3) / 2
-        I_z_skin = 2 * ((self.skt * self.l**3 * (sin(self.theta))**2)/12 + self.skt * self.l * ((self.l/2) * sin(self.theta))**2) + (self.spt * self.ha**3)/12 + I_z_circ  # Still need to add the circular section
+        I_z_skin = 2 * ((self.skt * self.l**3 * (sin(self.theta))**2)/12 + self.skt * self.l * ((self.l/2) *
+        sin(self.theta))**2) + (self.spt * self.ha**3)/12 + I_z_circ  # Still need to add the circular section
 
         I_zz = 0
 
@@ -90,8 +92,10 @@ class CrossSection:
         d = []
         z,_ = self.centroid()
         boomLoc = self.locBooms()
-        I_y_circ = (np.pi * self.skt * (self.ha / 2) ** 3) / 2 - np.pi * (self.ha / 2) * self.skt * ((2 * (self.ha / 2)) / np.pi) ** 2 + np.pi * (self.ha / 2) * self.skt * (z - ((self.ha/2) - (2 * (self.ha/2))/np.pi))**2
-        I_y_skin = 2 * ((self.skt * self.l**3 * (cos(self.theta))**2)/12 + self.skt * self.l * (0.505 - z - (self.l/2) * cos(self.theta))**2) + (self.spt**3 * self.ha)/12 + self.ha * self.spt * (z - self.ha)**2 + I_y_circ   # Still need to add MOI of the circular section
+        I_y_circ = (np.pi * self.skt * (self.ha / 2) ** 3) / 2 - np.pi * (self.ha / 2) * self.skt * ((2 * (self.ha / 2))
+        / np.pi) ** 2 + np.pi * (self.ha / 2) * self.skt * (z - ((self.ha/2) - (2 * (self.ha/2))/np.pi))**2
+        I_y_skin = 2 * ((self.skt * self.l**3 * (cos(self.theta))**2)/12 + self.skt * self.l * (0.505 - z - (self.l/2) *
+        cos(self.theta))**2) + (self.spt**3 * self.ha)/12 + self.ha * self.spt * (z - self.ha)**2 + I_y_circ
 
         I_yy = 0
 
@@ -113,8 +117,24 @@ Iy = cs.inertiaYY()
 
 # The error of the values of Izz and Iyy compared to the ones from the verification model
 
-e_yy = ((Iy - 4.5925790464352304 * 10**(-5))/(4.5925790464352304 * 10**(-5))) * 100     # %
-e_zz = ((Iz - 4.686331664359035 * 10**(-6))/(4.686331664359035 * 10**(-6))) * 100       # %
+e_yy = ((Iy - 4.5943507864451845 * 10**(-5))/(4.5943507864451845 * 10**(-5))) * 100     # %
+e_zz = ((4.753851442684436 * 10**(-6) - Iz)/(4.753851442684436 * 10**(-6))) * 100       # %
 
+print('Iyy =', Iy,'and Izz =', Iz)
 print('The error on Iyy is', e_yy,'%')
 print('The error on Izz is', e_zz,'%')
+z,y = centroid
+
+e_z = ((z - 0.20362591085157106)/(0.20362591085157106)) * 100           # %
+print('The error on z is', z,'%')
+
+'''
+plt.figure()
+plt.scatter(zcoord,y, marker="o", c= tau_yz)
+plt.title("Shear stress in the cross section at ")
+plt.xlabel("z")
+plt.ylabel("y")
+plt.colorbar()
+plt.axis('equal')
+plt.show
+'''

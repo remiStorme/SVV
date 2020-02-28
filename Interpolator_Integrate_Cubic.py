@@ -1,5 +1,5 @@
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 class Interpolate_Integrate:
     def __init__(self, x_data, y_data):
@@ -87,7 +87,6 @@ class Interpolate_Integrate:
             C1 = a * (x0 - xi) + (b / 2) * (x0 - xi) ** 2 + (c / 3) * (x0 - xi) ** 3 + (d / 4) * (x0 - xi) ** 4
             C2 = (a / 2) * (x0-xi) ** 2 + (b / 6) * (x0 - xi) ** 3 + (c / 12) * (x0 - xi) ** 4 + (d / 20) * (x0 - xi) ** 5 - C1 * (x0-xi)
             C3 = (a / 6)*(x0-xi)**3 + (b/24)*(x0-xi)**4 + (c/60)*(x0-xi)**5 + (d/120)*(x0-xi)**6 - (C1/2)*(x0-xi)**2 - C2*(x0-xi)
-
             return (a/24)*(x-xi)**4 + (b/120)*(x-xi)**5 + (c/360)*(x-xi)**6 + (d/840)*(x-xi)**7 - (C1/6)*(x-xi)**3 - (C2/2)*(x-xi)**2 - C3*(x-xi)
 
         ii = np.digitize(x, self.x_data)
@@ -130,28 +129,32 @@ class Interpolate_Integrate:
 
         return int_sums
 
-    # def plot_spline(self):
-    #     yi = self.spline_natural()
-    #     plt.plot(self.xx, yi)
-    #     plt.show()
+    def plot_spline(self):
+        yi = self.spline_natural()
+        plt.plot(self.xx, yi)
+        plt.show()
 
 #
-# x0,xn = -1,1.0
-# subspaces = 40
-# x_i = np.linspace(x0,xn,subspaces+1)
-#
+# x0,xn = 0,1.0
+# subspaces = 5
+# x_i = np.linspace(x0,2*xn,2*subspaces+1)
 #
 # #test function
 # def f_runge(x):
-#     return x**2
+#     return -x*(x-1)
 #
-# y_i = f_runge(x_i)
+# y = np.zeros(2*subspaces+1)
+# y[:subspaces+1] = f_runge(x_i[:subspaces+1])
+# y[subspaces+1:] = -f_runge(x_i[subspaces-1::-1])
 #
 #
-# s = Interpolate_Integrate(x_i,y_i)
+#
+# s = Interpolate_Integrate(x_i,y)
 # s.plot_spline()
 #
-# int= s.int_spline_natural(2, 0.99)
+# int= s.int_spline_natural(4, 0.5)
+# print(int)
+
 # plt.plot(x_i[2:],int_parts)
 # plt.show()
 #

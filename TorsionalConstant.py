@@ -1,6 +1,6 @@
 import numpy as np
-from MOI import Iy, Iz, locbooms
-from SC import getsy, trapezoid, qbs
+from MOI import Iy, Iz
+from SC import getszyf, trapezoid, qbs
 # import Interpolator_Integrate_Cubic as ii
 
 # Input Parameters
@@ -21,12 +21,13 @@ alpha = np.arcsin(r / l)
 T = 1
 G = 1
 Bi = wst * tst + hst * tst
-s,_ = getsy()
+s,_,_,_,_ = getszyf()
 A_i = np.pi * r ** 2 / 2
 A_ii = h * (Ca - r) / 2
 
 q_int = []
 s = [list(val) for val in s]
+
 num_i= []
 for i in range(6):
     num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
@@ -46,35 +47,24 @@ q02n = F[1]
 
 twist1 = (1/2/A_i)*(num_i[0]/tsk - num_i[1]/tsp + num_i[4]/tsp - num_i[5]/tsk +(np.pi*r/tsk+2*r/tsp)*q01n - 2*r/tsp*q02n)
 twist2 = (1/2/A_ii)*(num_i[1]/tsp + num_i[2]/tsk + num_i[3]/tsk - num_i[4]/tsp + (2*l/tsk+2*r/tsp)*q02n - 2*r/tsp*q01n)
+torque = 2 * A_i * q01n + 2 * A_ii * q02n
+
+#print(torque)
+#print(twist1)
+#print(twist2)
+
 
 J = T / twist1
-print(J)
+print('J =', J)
 
 # Error compared to the answer of the verification model
 
-e = ((J - 7.649955726444055 * 10**(-6))/(7.649955726444055 * 10**(-6))) * 100 # in percent
-print('The error is =', e[0],'%')
-'''
-q_int = []
-s = [list(val) for val in s]
-num_i= []
-for i in range(6):
-    num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
-# print(num_i)
+e = ((J - 7.748548555816593 * 10**(-6))/(7.748548555816593 * 10**(-6))) * 100 # in percent
+print('The error of J is =', e[0],'%')
 
-D = np.array([[-1 * ((np.pi * r / tsk) + 2 * r / tsp) - 2 * r / tsk, -1 * (-2 * r / tsp) + l / tsk + 2 * r / tsp], [2 * A_i, 2 * A_ii]])
 
-E = np.array([[- num_i[0] / tsk + num_i[1] / tsp - num_i[4] / tsp + num_i[5] / tsk + (num_i[2] / tsk + num_i[3] / tsk - num_i[4] / tsp + num_i[1] / tsp)], [T]])
 
-F = np.linalg.solve(D, E)
 
-q01n = F[0]
-q02n = F[1]
-
-J = T / ((1 / (2 * A_i))(num_i[0] / tsk - num_i[1] / tsp + num_i[4] / tsp + num_i[5] / tsk + q01n[0] * ((np.pi * r / tsk) + 2 * r / tsp) + q02n[0] * (-2 * r / tsp)))
-
-print(J)
-'''
 '''
 # TC is the matrix in terms of q0,1 and q0,2 for the compatibility equation and the total torque equation
 TC = np.array([[((2 * circ)/(A_i * tsk)) + ((2 * r)/(A_i * tsp)) + ((2 * r)/(A_ii * tsk)), (-(2 * r)/(A_i * tsp)) - ((2 * r)/(A_ii * tsp)) - ((2 * l)/(A_ii * tsk))], [2 * A_i, 2 * A_ii]])
@@ -105,21 +95,6 @@ J6 = J1
 JJ = J1 + J2 + J3 + J4 + J5 + J6
 print("J Method II =", JJ)
 '''
-
-
-"""
-q_int = []
-s = [list(val) for val in s]
-
-for i in range(len(s)):
-    q_object = ii.Interpolate_Integrate(s[i],qbs[i])
-    # print(q_int)
-    lim = s[i][-1]
-    temp_int = q_object.int_spline_natural(1,lim)
-    q_int.append(temp_int)
-
-print(q_int)
-"""
 """
 
 # Boom Locations

@@ -35,6 +35,6 @@ def normStresses():
     plt.xlabel('x-position (m)')
     plt.ylabel('Sigma x (Pa)')
     plt.show()
-
+    print(sigmax)
     return sigmax
 normStresses()
