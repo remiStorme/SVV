@@ -116,5 +116,17 @@ Iy = cs.inertiaYY()
 e_yy = ((Iy - 4.5925790464352304 * 10**(-5))/(4.5925790464352304 * 10**(-5))) * 100     # %
 e_zz = ((Iz - 4.686331664359035 * 10**(-6))/(4.686331664359035 * 10**(-6))) * 100       # %
 
+print('Iyy =', Iy,'and Izz =', Iz)
 print('The error on Iyy is', e_yy,'%')
 print('The error on Izz is', e_zz,'%')
+
+'''
+plt.figure()
+plt.scatter(zcoord,y, marker="o", c= tau_yz)
+plt.title("Shear stress in the cross section at ")
+plt.xlabel("z")
+plt.ylabel("y")
+plt.colorbar()
+plt.axis('equal')
+plt.show
+'''

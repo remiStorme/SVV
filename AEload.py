@@ -1,9 +1,9 @@
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import Interpolator_Integrate_Cubic as ii
 
 
-# plt.style.use('ggplot')
+plt.style.use('ggplot')
 
 z_sc    = -0.08499063497059493
 J       = 7.649955726444055*10**-6
@@ -42,7 +42,6 @@ for i in range(Nx):
 for i in range(Nz):
     z[i]    = (ca*(1-np.cos(th_z[i]))/2+ca*(1-np.cos(th_z[i+1]))/2)/2
 
-
 #_____SPANWISE LIFT AND TORQUE DISTRIBUTION
 #_____this is the functions that will be integrated in matrix b of the reaction forces system
 #_____in order to construct these functions, the lift and torque due to it is integrated in z at
@@ -61,7 +60,7 @@ for i in range(Nx):
     w_x[i]        = wtotal_x
 
 
-    torque_function = chord_lifts*(z + z_sc)      #creating an array representing the torque contribution
+    torque_function = -chord_lifts*(z + z_sc)      #creating an array representing the torque contribution
                                                   #of each chordwise lift value
     torque_object   = ii.Interpolate_Integrate(z,torque_function)
     torque_x       += torque_object.int_spline_natural(1,ca)

@@ -1,9 +1,12 @@
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import math as m
-import Reaction_Forces_Aero_Load as rf
+import Reaction_Forces_Aero_Load_Improved as rf
 import Interpolator_Integrate_Cubic as ii
 import AEload as ae
+
+from main_4 import aileron
+
 
 #RELEVANT VARIABLES
 Ca = 0.505  # m
@@ -46,6 +49,15 @@ I_yy    = 4.5925790464352304*10**-5
 I_zz    = 4.686331664359035*10**-6
 
 
+x = np.linspace(0,la,500)
+Sy_ver = aileron.Sy(x)
+Sz_ver = aileron.Sz(x)
+My_ver = aileron.My(x)
+Mz_ver = aileron.Mz(x)
+T_ver = aileron.T(x)
+
+v_ver, w_ver, phi_ver = aileron.eval(x)       # Compute the three deflections
+
 #retrieving values for 12 unknowns from the matrix system
 uks = rf.uks
 R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],uks[8],uks[9],uks[10],uks[11]
@@ -82,9 +94,8 @@ def M_z(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj,xp, theta, P):
     lift_object = ii.Interpolate_Integrate(x_ae, w_x)
 
     for i in x:
-        y.append(-R_1y*mac(i,x1,1)  + lift_object.int_spline_natural(2,min(i,la_lim)) - R_2y*mac(i,x2,1)- R_3y*mac(i,x3,1) + P*m.sin(theta)*mac(i,xp,1)-R_A*m.sin(theta)*mac(i,xaj, 1))
-        if i > x3:
-            y[-1] = 0
+        lift_object = ii.Interpolate_Integrate(x_ae, w_x*(i-x_ae)**1/2)
+        y.append(-R_1y*mac(i,x1,1)  + lift_object.int_spline_natural(1,i) - R_2y*mac(i,x2,1)- R_3y*mac(i,x3,1) + P*m.sin(theta)*mac(i,xp,1)-R_A*m.sin(theta)*mac(i,xaj, 1))
     return np.array(x), np.array(y)
 
 
@@ -95,7 +106,7 @@ def S_y(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):
     lift_object = ii.Interpolate_Integrate(x_ae, w_x)
 
     for i in x:
-        y.append(-R_1y*mac(i,x1,0)  + lift_object.int_spline_natural(1,min(i,la_lim)) - R_2y*mac(i,x2,0)- R_3y*mac(i,x3,0) + P*m.sin(theta)*mac(i,xp,0)-R_A*m.sin(theta)*mac(i,xaj, 0))
+        y.append(-R_1y*mac(i,x1,0)  + lift_object.int_spline_natural(1,i) - R_2y*mac(i,x2,0)- R_3y*mac(i,x3,0) + P*m.sin(theta)*mac(i,xp,0)-R_A*m.sin(theta)*mac(i,xaj, 0))
 
     return np.array(x), np.array(y)
 
@@ -115,7 +126,8 @@ def v_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):
     lift_object = ii.Interpolate_Integrate(x_ae, w_x)
 
     for i in x:
-        y.append((-1/E/I_zz)*(((-R_1y/6)*mac(i,x1,3)) + lift_object.int_spline_natural(4,min(i,la_lim/1.5)) - (R_2y/6)*mac(i,x2,3) -
+        lift_object = ii.Interpolate_Integrate(x_ae, w_x*(i-x_ae)**3/6)
+        y.append((-1/E/I_zz)*(((-R_1y/6)*mac(i,x1,3)) + lift_object.int_spline_natural(1,i) - (R_2y/6)*mac(i,x2,3) -
                    (R_3y/6)*mac(i,x3,3) + (P/6)*np.sin(theta)*mac(i,xp,3) - (R_A/6)*np.sin(theta)*mac(i,xaj,3) ) + c1*i + c2)
 
     return np.array(x), np.array(y)
@@ -137,7 +149,7 @@ def T_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):  #spanwise to
     torque_object = ii.Interpolate_Integrate(x_ae, t_x)
 
     for i in x:
-        y.append(torque_object.int_spline_natural(1,min(i,la_lim)) + (ha/2 + z_sc)*R_1y*mac(i,x1,0) +
+        y.append(torque_object.int_spline_natural(1,i) + (ha/2 + z_sc)*R_1y*mac(i,x1,0) +
             (ha/2 + z_sc)*R_2y*mac(i,x2,0)+ (ha/2 + z_sc)*R_3y*mac(i,x3,0) + z_sc*R_A*m.sin(theta)*mac(i,xaj,0) +
             r * R_A * m.cos(theta) * mac(i, xaj, 0) -z_sc*P*m.sin(theta)*mac(i,xp,0)  - r*P*m.cos(theta) * mac(i, xp, 0))
 
@@ -152,13 +164,11 @@ def th_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):  #spanwise t
     torque_object = ii.Interpolate_Integrate(x_ae, t_x)
 
     for i in x:
-        #print(torque_object.int_spline_natural(2,min(i,la_lim/1.1)))
-        if i < x3:
-            y.append((1/G/J)*(torque_object.int_spline_natural(2,min(i,la_lim/1.1)) + (ha/2 + z_sc)*R_1y*mac(i,x1,1) +
+        torque_object = ii.Interpolate_Integrate(x_ae, t_x*(i-x_ae)*1/2)
+        y.append((1/G/J)*(torque_object.int_spline_natural(1,i) + (ha/2 + z_sc)*R_1y*mac(i,x1,1) +
                           (ha/2 + z_sc)*R_2y*mac(i,x2,1) + (ha/2 + z_sc)*R_3y*mac(i,x3,1) + z_sc*R_A*m.sin(theta)*mac(i,xaj,1) +
             r * R_A * m.cos(theta) * mac(i, xaj, 1) -z_sc*P*m.sin(theta)*mac(i,xp,1)  - r*P*m.cos(theta) * mac(i, xp, 1))+c5)
-        else:
-            y.append(y[-1])
+
 
 
     return np.array(x), np.array(y)
@@ -200,3 +210,71 @@ x_th, y_th = th_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P)
 # plt.show()
 # plt.plot(x_T,y_T)
 # plt.show()
+
+
+plt.figure()
+plt.subplot(331)
+plt.plot(x_sy, y_sy, label = 'Numerical Model', color = "blue")
+plt.plot(x, Sy_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("Sy [N]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(332)
+plt.plot(x_mz, y_mz, label = 'Numerical Model', color = "blue")
+plt.plot(x, Mz_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("Mz [Nm]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(333)
+plt.plot(x_v, y_v, label = 'Numerical Model', color = "blue")
+plt.plot(x, v_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("v [m]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(334)
+plt.plot(x_sz, y_sz, label = 'Numerical Model', color = "blue")
+plt.plot(x, Sz_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("Sz [N]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(335)
+plt.plot(x_my, y_my, label = 'Numerical Model', color = "blue")
+plt.plot(x, My_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("My [Nm]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(336)
+plt.plot(x_w, y_w, label = 'Numerical Model', color = "blue")
+plt.plot(x, w_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("w [m]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(337)
+plt.plot(x_w, y_T, label = 'Numerical Model', color = "blue")
+plt.plot(x, T_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("T [Nm]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.subplot(338)
+plt.plot(x_w, y_th, label = 'Numerical Model', color = "blue")
+plt.plot(x, phi_ver, label = 'Verification Model', color = "red")
+plt.xlabel("x [m]").set_size(14)
+plt.ylabel("theta [rad]").set_size(14)
+plt.legend()
+plt.grid()
+
+plt.show()
