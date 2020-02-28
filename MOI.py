@@ -56,7 +56,8 @@ class CrossSection:
         y = 0
         boomLoc = self.locBooms()
         Az = []
-        Azsk = self.ha * self.spt * (self.ha/2) + 2 * self.l * self.skt * (self.Ca - (self.l/2) * np.cos(self.theta)) + ((self.ha/2) - (2 * (self.ha/2))/np.pi) * np.pi * (self.ha/2) * self.skt
+        Azsk = self.ha * self.spt * (self.ha/2) + 2 * self.l * self.skt * (self.Ca - (self.l/2) * np.cos(self.theta)) \
+               + ((self.ha/2) - (2 * (self.ha/2))/np.pi) * np.pi * (self.ha/2) * self.skt
         area = 11 * self.boomArea + self.ha * self.spt + 2 * self.l * self.skt + np.pi * (self.ha/2) * self.skt
 
         for i in range(0,11):

@@ -60,7 +60,8 @@ v_ver, w_ver, phi_ver = aileron.eval(x)       # Compute the three deflections
 
 #retrieving values for 12 unknowns from the matrix system
 uks = rf.uks
-R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],uks[8],uks[9],uks[10],uks[11]
+R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],\
+                                                              uks[8],uks[9],uks[10],uks[11]
 
 #retriving functions for spanwise aerodunamic load for multiple integral terms in distribution expression
 t_x    = ae.t_w
@@ -83,7 +84,8 @@ def M_y(la, R_A, R_1z, R_2z, R_3z, x1, x2, x3, xaj, xp, theta, P):
     y = []
 
     for i in x:
-        y.append(-R_1z*mac(i,x1,1)-R_2z*mac(i,x2,1)-R_3z*mac(i,x3,1) + P*m.cos(theta)*mac(i,xp,1) - R_A*m.cos(theta)*mac(i,xaj,1))
+        y.append(-R_1z*mac(i,x1,1)-R_2z*mac(i,x2,1)-R_3z*mac(i,x3,1) + P*m.cos(theta)*mac(i,xp,1)
+                 - R_A*m.cos(theta)*mac(i,xaj,1))
 
     return np.array(x), np.array(y)
 
@@ -95,7 +97,8 @@ def M_z(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj,xp, theta, P):
 
     for i in x:
         lift_object = ii.Interpolate_Integrate(x_ae, w_x*(i-x_ae)**1/2)
-        y.append(-R_1y*mac(i,x1,1)  + lift_object.int_spline_natural(1,i) - R_2y*mac(i,x2,1)- R_3y*mac(i,x3,1) + P*m.sin(theta)*mac(i,xp,1)-R_A*m.sin(theta)*mac(i,xaj, 1))
+        y.append(-R_1y*mac(i,x1,1)  + lift_object.int_spline_natural(1,i) - R_2y*mac(i,x2,1)- R_3y*mac(i,x3,1)
+                 + P*m.sin(theta)*mac(i,xp,1)-R_A*m.sin(theta)*mac(i,xaj, 1))
     return np.array(x), np.array(y)
 
 
@@ -106,7 +109,8 @@ def S_y(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):
     lift_object = ii.Interpolate_Integrate(x_ae, w_x)
 
     for i in x:
-        y.append(-R_1y*mac(i,x1,0)  + lift_object.int_spline_natural(1,i) - R_2y*mac(i,x2,0)- R_3y*mac(i,x3,0) + P*m.sin(theta)*mac(i,xp,0)-R_A*m.sin(theta)*mac(i,xaj, 0))
+        y.append(-R_1y*mac(i,x1,0)  + lift_object.int_spline_natural(1,i) - R_2y*mac(i,x2,0)- R_3y*mac(i,x3,0)
+                 + P*m.sin(theta)*mac(i,xp,0)-R_A*m.sin(theta)*mac(i,xaj, 0))
 
     return np.array(x), np.array(y)
 
@@ -115,7 +119,8 @@ def S_z(la, R_A, R_1z, R_2z, R_3z, x1, x2, x3, xaj, xp, theta, P):
     y = []
 
     for i in x:
-        y.append(-R_1z*mac(i,x1,0)-R_2z*mac(i,x2,0)-R_3z*mac(i,x3,0) + P*m.cos(theta)*mac(i,xp,0) - R_A*m.cos(theta)*mac(i,xaj,0))
+        y.append(-R_1z*mac(i,x1,0)-R_2z*mac(i,x2,0)-R_3z*mac(i,x3,0) + P*m.cos(theta)*mac(i,xp,0)
+                 - R_A*m.cos(theta)*mac(i,xaj,0))
 
     return np.array(x), np.array(y)
 
@@ -127,8 +132,8 @@ def v_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):
 
     for i in x:
         lift_object = ii.Interpolate_Integrate(x_ae, w_x*(i-x_ae)**3/6)
-        y.append((-1/E/I_zz)*(((-R_1y/6)*mac(i,x1,3)) + lift_object.int_spline_natural(1,i) - (R_2y/6)*mac(i,x2,3) -
-                   (R_3y/6)*mac(i,x3,3) + (P/6)*np.sin(theta)*mac(i,xp,3) - (R_A/6)*np.sin(theta)*mac(i,xaj,3) ) + c1*i + c2)
+        y.append((-1/E/I_zz)*(((-R_1y/6)*mac(i,x1,3)) + lift_object.int_spline_natural(1,i) - (R_2y/6)*mac(i,x2,3)
+            -(R_3y/6)*mac(i,x3,3) + (P/6)*np.sin(theta)*mac(i,xp,3) - (R_A/6)*np.sin(theta)*mac(i,xaj,3) ) + c1*i + c2)
 
     return np.array(x), np.array(y)
 
@@ -137,7 +142,8 @@ def other_x(la, R_A, R_1z, R_2z, R_3z, x1, x2, x3, xaj, xp, theta, P):  #this is
     y = []
 
     for i in x:
-        y.append((-1/E/I_yy)*((-R_1z/6)*mac(i,x1,3) + (P/6)*np.cos(theta)*mac(i,xp,3)-(R_2z/6)*mac(i,x2,3)-(R_3z/6)*mac(i,x3,3) - (R_A/6)*np.cos(theta)*mac(i,xaj,3)) + c3*i + c4)
+        y.append((-1/E/I_yy)*((-R_1z/6)*mac(i,x1,3) + (P/6)*np.cos(theta)*mac(i,xp,3)-(R_2z/6)*mac(i,x2,3)-(R_3z/6)
+                              *mac(i,x3,3) - (R_A/6)*np.cos(theta)*mac(i,xaj,3)) + c3*i + c4)
 
     return np.array(x), np.array(y)
 
@@ -151,7 +157,8 @@ def T_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):  #spanwise to
     for i in x:
         y.append(torque_object.int_spline_natural(1,i) + (ha/2 + z_sc)*R_1y*mac(i,x1,0) +
             (ha/2 + z_sc)*R_2y*mac(i,x2,0)+ (ha/2 + z_sc)*R_3y*mac(i,x3,0) + z_sc*R_A*m.sin(theta)*mac(i,xaj,0) +
-            r * R_A * m.cos(theta) * mac(i, xaj, 0) -z_sc*P*m.sin(theta)*mac(i,xp,0)  - r*P*m.cos(theta) * mac(i, xp, 0))
+            r * R_A * m.cos(theta) * mac(i, xaj, 0) -z_sc*P*m.sin(theta)*mac(i,xp,0)
+                 - r*P*m.cos(theta) * mac(i, xp, 0))
 
     return np.array(x), np.array(y)
 
@@ -166,8 +173,9 @@ def th_x(la, R_A, R_1y, R_2y, R_3y, x1, x2, x3, xaj, xp, theta, P):  #spanwise t
     for i in x:
         torque_object = ii.Interpolate_Integrate(x_ae, t_x*(i-x_ae)*1/2)
         y.append((1/G/J)*(torque_object.int_spline_natural(1,i) + (ha/2 + z_sc)*R_1y*mac(i,x1,1) +
-                          (ha/2 + z_sc)*R_2y*mac(i,x2,1) + (ha/2 + z_sc)*R_3y*mac(i,x3,1) + z_sc*R_A*m.sin(theta)*mac(i,xaj,1) +
-            r * R_A * m.cos(theta) * mac(i, xaj, 1) -z_sc*P*m.sin(theta)*mac(i,xp,1)  - r*P*m.cos(theta) * mac(i, xp, 1))+c5)
+                (ha/2 + z_sc)*R_2y*mac(i,x2,1) + (ha/2 + z_sc)*R_3y*mac(i,x3,1) + z_sc*R_A*m.sin(theta)*mac(i,xaj,1) +
+                r * R_A * m.cos(theta) * mac(i, xaj, 1) -z_sc*P*m.sin(theta)*mac(i,xp,1)
+                - r*P*m.cos(theta) * mac(i, xp, 1))+c5)
 
 
 

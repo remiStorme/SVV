@@ -271,8 +271,8 @@ _ = Stressobject.sigma6f(theta)         # Compute the direct stress distribution
 _ = Stressobject.vm6(theta)             # Compute the Von Mises stress distribution in region 6
 _, _ = Stressobject.coord6(theta)       # Compute the z,y-coordinates for region 6
 
-print('y_sc=', crosssection.ysc)
-print('z_sc=',crosssection.zsc)
+print('y_sc=', crosssection.yc)
+print('z_sc=',crosssection.zc)
 print('J=', crosssection.J)
 print('Iyy=', crosssection.Iyy )
 print( 'Izz', crosssection.Izz)

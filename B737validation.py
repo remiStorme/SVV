@@ -12,7 +12,8 @@ def location_elements(fname):
 
 
     location = pd.read_csv(fname, delimiter = ',', skiprows = 9, nrows = 6588, names = ['Node','x','y','z'])
-    elements_list = pd.read_csv(fname, delimiter = ',', skiprows = 6598, nrows = 6633, names = ['Element','N1','N2','N3','N4'])
+    elements_list = pd.read_csv(fname, delimiter = ',', skiprows = 6598, nrows = 6633,
+                                names = ['Element','N1','N2','N3','N4'])
     
     x = location['x'].values
     y = location['y'].values
@@ -28,10 +29,14 @@ def location_elements(fname):
     #Make the elements
     for i in range(len(Element)):
     
-        entry1 = np.transpose(np.array([x[np.where(nodes == N1[i])], y[np.where(nodes == N1[i])], z[np.where(nodes == N1[i])]])) #XYZ locations of the nodes, so weget a 4x3 matrix 
-        entry2 = np.transpose(np.array([x[np.where(nodes == N2[i])], y[np.where(nodes == N2[i])], z[np.where(nodes == N2[i])]]))
-        entry3 = np.transpose(np.array([x[np.where(nodes == N3[i])], y[np.where(nodes == N3[i])], z[np.where(nodes == N4[i])]]))
-        entry4 = np.transpose(np.array([x[np.where(nodes == N4[i])], y[np.where(nodes == N3[i])], z[np.where(nodes == N4[i])]]))
+        entry1 = np.transpose(np.array([x[np.where(nodes == N1[i])], y[np.where(nodes == N1[i])],
+                                        z[np.where(nodes == N1[i])]])) #XYZ locations of the nodes, so weget a 4x3 matrix
+        entry2 = np.transpose(np.array([x[np.where(nodes == N2[i])], y[np.where(nodes == N2[i])],
+                                        z[np.where(nodes == N2[i])]]))
+        entry3 = np.transpose(np.array([x[np.where(nodes == N3[i])], y[np.where(nodes == N3[i])],
+                                        z[np.where(nodes == N4[i])]]))
+        entry4 = np.transpose(np.array([x[np.where(nodes == N4[i])], y[np.where(nodes == N3[i])],
+                                        z[np.where(nodes == N4[i])]]))
     
         element = np.vstack((entry1,entry2,entry3,entry4))
         list_elements.append(element) #List of all the elements
@@ -42,16 +47,19 @@ def location_elements(fname):
         y_avg = sum(list_elements[i][:,1])/4
         z_avg = sum(list_elements[i][:,2])/4
         average_location= [x_avg,y_avg,z_avg,i]
-        list_average_elements.append(average_location) #Gives the average for the location of the node (kind of like the centroid)
+        list_average_elements.append(average_location) #Gives the average for the location of the node
+        # (kind of like the centroid)
 
     list_average_elements = np.array(list_average_elements)
-    sorted_avg_elements = list_average_elements[np.argsort(list_average_elements[:, 0])] #sorted list of elements in the x-axis 
+    sorted_avg_elements = list_average_elements[np.argsort(list_average_elements[:, 0])] #sorted list of elements
+    # in the x-axis
     
     return sorted_avg_elements
 
 def stresses(fname, start, end):
     
-    stress = pd.read_csv(fname, delimiter = ',', skiprows = start, nrows = end, names = ['Element','Int','s_mis1','s_mis2','s_shear1','s_shear2'])
+    stress = pd.read_csv(fname, delimiter = ',', skiprows = start, nrows = end,
+                         names = ['Element','Int','s_mis1','s_mis2','s_shear1','s_shear2'])
     
     s_mis1 = stress['s_mis1'].values
     s_mis2 = stress['s_mis2'].values
@@ -101,7 +109,8 @@ def maximum(coordinate,stress):
     stress_max = []
     
     for i in  range(len(points)):
-        entries.append(np.where(coordinate == points[i])) #append points when value is equal to the unique value, gives list of entries where value is the same 
+        entries.append(np.where(coordinate == points[i])) #append points when value is equal to the unique value,
+        # gives list of entries where value is the same
     for i in range(len(entries)):
         stresses.append(stress[entries[i]]) #Get a list of the stresses when the entries are the same
     for i in range(len(stresses)):
@@ -109,7 +118,8 @@ def maximum(coordinate,stress):
     
     return points, stress_max
 
-def coordinates(fname_rpt,fname_inp,start,end,coordinate,stress): #coordinate and stress are from 0 to 2 and 3 to 4 respecitivly 
+def coordinates(fname_rpt,fname_inp,start,end,coordinate,stress): #coordinate and stress are from 0 to 2
+    # and 3 to 4 respecitivly
      element_values = full_element(fname_rpt,fname_inp,start,end)
      coordinate = element_values[coordinate] #x = 0, y = 1, z = 2
      stress = element_values[stress] #vonmissen = 3, shear = 4
@@ -126,7 +136,8 @@ start = 6687
 end = 5777
 
 
-deflection = pd.read_csv(fname_rpt, delimiter = ',', skiprows = 26706, nrows = 6587, names = ['Node','Magnitude','U1','U2','U3'])
+deflection = pd.read_csv(fname_rpt, delimiter = ',', skiprows = 26706, nrows = 6587,
+                         names = ['Node','Magnitude','U1','U2','U3'])
 
 x,stress = coordinates(fname_rpt,fname_inp,start,end,0,3)
 z = coordinates(fname_rpt,fname_inp,start,end,2,3)[0]

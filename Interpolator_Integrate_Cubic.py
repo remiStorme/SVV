@@ -75,19 +75,25 @@ class Interpolate_Integrate:
         def int_2(x, xi, x0, a, b, c, d):
             C1 = a * (x0-xi) + (b / 2) * (x0 - xi) ** 2 + (c / 3) * (x0 - xi) ** 3 + (d / 4) * (x0 - xi) ** 4
 
-            return (a / 2)*(x - xi)** 2 + (b / 6)*(x - xi)**3 + (c / 12)*(x - xi)** 4 + (d / 20)*(x - xi)**5 - C1*(x - xi)
+            return (a / 2)*(x - xi)** 2 + (b / 6)*(x - xi)**3 + (c / 12)*(x - xi)** 4 + (d / 20)*(x - xi)**5 \
+                   - C1*(x - xi)
 
         def int_3(x, xi, x0, a, b, c, d):
             C1 = a * (x0 - xi) + (b / 2) * (x0 - xi) ** 2 + (c / 3) * (x0 - xi) ** 3 + (d / 4) * (x0 - xi) ** 4
-            C2 = (a / 2) * (x0-xi) ** 2 + (b / 6) * (x0 - xi) ** 3 + (c / 12) * (x0 - xi) ** 4 + (d / 20) * (x0 - xi) ** 5 - C1 * (x0-xi)
+            C2 = (a / 2) * (x0-xi) ** 2 + (b / 6) * (x0 - xi) ** 3 + (c / 12) * (x0 - xi) ** 4 + (d / 20) * (x0 - xi) \
+                 ** 5 - C1 * (x0-xi)
 
-            return (a / 6)*(x - xi)**3 + (b / 24)*(x - xi)**4 + (c / 60)*(x - xi)**5 + (d / 120)*(x - xi)**6 - (C1/2)*(x - xi)**2 - C2*(x-xi)
+            return (a / 6)*(x - xi)**3 + (b / 24)*(x - xi)**4 + (c / 60)*(x - xi)**5 + (d / 120)*(x - xi)**6 \
+                   - (C1/2)*(x - xi)**2 - C2*(x-xi)
 
         def int_4(x, xi, x0, a, b, c, d):
             C1 = a * (x0 - xi) + (b / 2) * (x0 - xi) ** 2 + (c / 3) * (x0 - xi) ** 3 + (d / 4) * (x0 - xi) ** 4
-            C2 = (a / 2) * (x0-xi) ** 2 + (b / 6) * (x0 - xi) ** 3 + (c / 12) * (x0 - xi) ** 4 + (d / 20) * (x0 - xi) ** 5 - C1 * (x0-xi)
-            C3 = (a / 6)*(x0-xi)**3 + (b/24)*(x0-xi)**4 + (c/60)*(x0-xi)**5 + (d/120)*(x0-xi)**6 - (C1/2)*(x0-xi)**2 - C2*(x0-xi)
-            return (a/24)*(x-xi)**4 + (b/120)*(x-xi)**5 + (c/360)*(x-xi)**6 + (d/840)*(x-xi)**7 - (C1/6)*(x-xi)**3 - (C2/2)*(x-xi)**2 - C3*(x-xi)
+            C2 = (a / 2) * (x0-xi) ** 2 + (b / 6) * (x0 - xi) ** 3 + (c / 12) * (x0 - xi) ** 4 + (d / 20) * (x0 - xi) \
+                 ** 5 - C1 * (x0-xi)
+            C3 = (a / 6)*(x0-xi)**3 + (b/24)*(x0-xi)**4 + (c/60)*(x0-xi)**5 + (d/120)*(x0-xi)**6 - (C1/2)*(x0-xi)**2 \
+                 - C2*(x0-xi)
+            return (a/24)*(x-xi)**4 + (b/120)*(x-xi)**5 + (c/360)*(x-xi)**6 + (d/840)*(x-xi)**7 - (C1/6)*(x-xi)**3 \
+                   - (C2/2)*(x-xi)**2 - C3*(x-xi)
 
         ii = np.digitize(x, self.x_data)
         ii = np.fmin(np.fmax(ii - 1, 0), self.subspaces - 1)

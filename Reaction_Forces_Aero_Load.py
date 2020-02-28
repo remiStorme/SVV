@@ -120,7 +120,8 @@ A[4,2]  = 0
 A[4,3]  = 0
 A[4,4]  = 0
 A[4,5]  = 0
-A[4,6]  = (1/E/I_zz/6)*m.sin(theta)*(x3-xaj)**3 + 1/(G*J)*(ha/2 + z_sc)*(z_sc*m.sin(theta)*(x3-xaj) + r*m.cos(theta)*(x3-xaj))
+A[4,6]  = (1/E/I_zz/6)*m.sin(theta)*(x3-xaj)**3 + 1/(G*J)*(ha/2 + z_sc)*(z_sc*m.sin(theta)*(x3-xaj)
+                                                                         + r*m.cos(theta)*(x3-xaj))
 A[4,7]  = x3
 A[4,8]  = 1
 A[4,9]  = 0
@@ -234,18 +235,21 @@ b[0,0]   = d1*np.cos(theta) + (1/I_zz/E)*(lift_object.int_spline_natural(4,x1)) 
 
 b[1,0]   = -d1*np.sin(theta)
 
-b[2,0]   = (1/I_zz/E)*(lift_object.int_spline_natural(4,x2)) - (ha/2 + z_sc)*(1/G/J)*(torque_object.int_spline_natural(2,x2))
+b[2,0]   = (1/I_zz/E)*(lift_object.int_spline_natural(4,x2)) - (ha/2 + z_sc)*(1/G/J)\
+           *(torque_object.int_spline_natural(2,x2))
 
 b[3,0]   = 0
 
 lift_object_temp = ii.Interpolate_Integrate(x, w_x * (x3 - x) ** 3 / 6)
 torque_object_temp = ii.Interpolate_Integrate(x, t_x * (x3 - x) ** 1 / 2)
-b[4,0]   = d3*np.cos(theta) + (1/I_zz/E)*((lift_object_temp.int_spline_natural(1,x3)) + (P/6)*np.sin(theta)*(x3 - xp)**3)\
-           - (ha/2 + z_sc)*(1/G/J)*((torque_object_temp.int_spline_natural(2,min(x3,la_lim))) - z_sc*P*np.sin(theta)*(x3-xp) - r*P*np.cos(theta)*(x3-xp))
+b[4,0]   = d3*np.cos(theta)+(1/I_zz/E)*((lift_object_temp.int_spline_natural(1,x3)) + (P/6)*np.sin(theta)*(x3 - xp)**3)\
+           - (ha/2 + z_sc)*(1/G/J)*((torque_object_temp.int_spline_natural(2,min(x3,la_lim)))
+                                    - z_sc*P*np.sin(theta)*(x3-xp) - r*P*np.cos(theta)*(x3-xp))
 
 b[5,0]   = -d3*np.sin(theta) + (1/I_yy/E)*(P/6)*np.cos(theta)*(x3 - xp)**3
 
-b[6,0]   = (np.sin(theta)/E/I_zz)*(lift_object.int_spline_natural(4,xaj)) -torque_object.int_spline_natural(2,xaj)*(1/G/J)*((ha/2)*m.cos(theta) + z_sc*m.sin(theta))
+b[6,0]   = (np.sin(theta)/E/I_zz)*(lift_object.int_spline_natural(4,xaj)) \
+           -torque_object.int_spline_natural(2,xaj)*(1/G/J)*((ha/2)*m.cos(theta) + z_sc*m.sin(theta))
 
 b[7,0]   = lift_object.int_spline_natural(1,la) + P*np.sin(theta)
 
@@ -266,7 +270,8 @@ uks = np.linalg.solve(A,b)
 
 #vector x = [Ry1, Ry2, Ry3, Rz1, Rz2, Rz3, Ar, C1, C2, C3, C4, C5]
 
-R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],uks[8],uks[9],uks[10],uks[11]
+R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5 = uks[0],uks[1],uks[2],uks[3],uks[4],uks[5],uks[6],uks[7],\
+                                                              uks[8],uks[9],uks[10],uks[11]
 
 print(R_1y, R_2y, R_3y, R_1z, R_2z, R_3z, R_A, c1, c2, c3, c4, c5)
 
