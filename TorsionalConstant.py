@@ -27,6 +27,7 @@ A_ii = h * (Ca - r) / 2
 
 q_int = []
 s = [list(val) for val in s]
+
 num_i= []
 for i in range(6):
     num_i.append(trapezoid(qbs[i],s[i])[-1]) # the last element of the list that "trapezoid" generates is the value of the integral
@@ -58,7 +59,7 @@ print('J =', J)
 
 # Error compared to the answer of the verification model
 
-e = ((J - 7.649955726444055 * 10**(-6))/(7.649955726444055 * 10**(-6))) * 100 # in percent
+e = ((J - 7.748548555816593 * 10**(-6))/(7.748548555816593 * 10**(-6))) * 100 # in percent
 print('The error of J is =', e[0],'%')
 
 
