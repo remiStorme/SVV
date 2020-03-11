@@ -6,7 +6,7 @@ class CrossSection:
     def __init__(self):
         self.circ = 1.116
         self.Ca = 0.505  # m
-        self.ha = 0.16  # m
+        self.ha = 0.161  # m
         self.arc = self.circ / 11
         self.le = self.arc / 2
         self.theta = np.arctan((self.ha / 2) / (self.Ca - (self.ha / 2)))

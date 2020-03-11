@@ -107,6 +107,6 @@ class aileron:
 
 test = aileron(0,0,0,0,0)
 test_list = test.genSlices()
-print(test_list)
+# print(test_list)
 
 

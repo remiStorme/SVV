@@ -30,7 +30,7 @@ class VonMises:
 
 test_tensor = np.array([[1.1,0.2,0.4],[1,1,1],[5,0.5,0.55]])
 x = VonMises(test_tensor,210,98,45)
-print(x)
+# print(x)
 x.StressCriterion()
 
 
