@@ -1,5 +1,5 @@
 import Internal_Forces_and_Deflections as ifd
-from MOI import Iz, Iy
+from MOI import Iz, Iy, z
 import matplotlib.pyplot as plt
 import numpy as np
 import math as m
@@ -11,12 +11,16 @@ y_mz = ifd.y_mz
 x_my = ifd.x_my
 y_my = ifd.y_my
 '''
+Ca = 0.505
+ha = 0.161
+zz = np.linspace(0, Ca, 40)
+yy = np.linspace(0, ha, 40)
 
 def normStresses():
-    x_mz = ifd.x_mz
+    x_mz = ifd.x_mz     #np.array(np.linspace(0, la, 40))
     y_mz = ifd.y_mz
 
-    x_my = ifd.x_my
+    x_my = ifd.x_my     #np.array(np.linspace(0, la, 40))
     y_my = ifd.y_my
 
     sigmax = []
@@ -25,8 +29,8 @@ def normStresses():
     #print(x_my)
     #print(y_my)
 
-    for i in range(len(x_mz)):
-        sigmax.append((y_my[i] * x_mz[i])/Iy + (y_mz[i] * x_my[i])/Iz)
+    for i in range(len(zz)):
+        sigmax.append((y_my[i] * (zz[i] - z))/Iy + (y_mz[i] * yy)/Iz)
 
     sigmax = [list(val) for val in sigmax]
     #print(sigmax)
