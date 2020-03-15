@@ -396,7 +396,7 @@ z = concatenate((zvaluesregion1,zvaluesregion2,zvaluesregion3,zvaluesregion4,zva
 y = concatenate((yvaluesregion1,yvaluesregion2,yvaluesregion3,yvaluesregion4,yvaluesregion5,yvaluesregion6))
 tau = concatenate((tau0,tau1,tau2,tau3,tau4,tau5))
 
-# Von Mises from selected My, Mz, tau for crossection # Ncs=0
+# Von Mises and Bending Stress sigma from selected My, Mz, tau for crossection # Ncs=0
 My = 0                                                            # change here!!                                                          # change here!!
 sigma = My * z / I_yy + T * y / I_zz
 VM = sqrt(sigma**2 + 3 * tau**2)
