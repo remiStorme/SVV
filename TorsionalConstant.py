@@ -52,8 +52,10 @@ q02n = F[1]
 print('q1', q01n)
 print('q2', q02n)
 
-twist1 = (1/2/A_i)*(num_i[0]/tsk - 0 * num_i[1]/tsp + num_i[4]/tsp - num_i[5]/tsk +(np.pi*r/tsk+2*r/tsp)*q01n - 1.0543549*2*r/tsp*q02n)
-twist2 = (1/2/A_ii)*(num_i[1]/tsp + num_i[2]/tsk + num_i[3]/tsk - num_i[4]/tsp + (2*l/tsk+2*r/tsp)*q02n - 2*r/tsp*q01n)
+twist1 = (1/2/A_i)*(num_i[0]/tsk - 0 * num_i[1]/tsp + num_i[4]/tsp -
+         num_i[5]/tsk + (np.pi*r/tsk+2*r/tsp)*q01n - 1.0551215*2*r/tsp*q02n)
+twist2 = (1/2/A_ii)*(num_i[1]/tsp + num_i[2]/tsk + num_i[3]/tsk - num_i[4]/tsp +
+        (2*l/tsk+2*r/tsp)*q02n - 2*r/tsp*q01n)
 torque = 2 * A_i * q01n + 2 * A_ii * q02n
 
 #print(torque)
@@ -66,5 +68,5 @@ print('J =', J)
 
 # Error compared to the answer of the verification model
 
-e = ((J - 7.748548555816593 * 10**(-6))/(7.748548555816593 * 10**(-6))) * 100 # in percent
+e = ((7.748548555816593 * 10**(-6) - J)/(7.748548555816593 * 10**(-6))) * 100 # in percent
 print('The error of J is =', e[0],'%')

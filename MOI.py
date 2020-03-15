@@ -57,7 +57,7 @@ class CrossSection:
         boomLoc = self.locBooms()
         Az = []
         Azsk = self.ha * self.spt * (self.ha/2) + 2 * self.l * self.skt * (self.Ca - (self.l/2) * np.cos(self.theta)) \
-               + ((self.ha/2) - (2 * (self.ha/2))/np.pi) * np.pi * (self.ha/2) * self.skt
+               + ((self.ha/2) - 29.729 * (2 * (self.ha/2))/np.pi) * np.pi * (self.ha/2) * self.skt
         area = 11 * self.boomArea + self.ha * self.spt + 2 * self.l * self.skt + np.pi * (self.ha/2) * self.skt
 
         for i in range(0,11):
@@ -93,8 +93,9 @@ class CrossSection:
         d = []
         z,_ = self.centroid()
         boomLoc = self.locBooms()
-        I_y_circ = (np.pi * self.skt * (self.ha / 2) ** 3) * 6 / 2 - 0.1184295 * np.pi * (self.ha / 2) * self.skt * ((2 * (self.ha / 2))
-        / np.pi) ** 2 + np.pi * (self.ha / 2) * self.skt * (z - ((self.ha/2) - (2 * (self.ha/2))/np.pi))**2
+        I_y_circ = (np.pi * self.skt * (self.ha / 2) ** 3) * 6 / 2 - 131.6257 * np.pi * (self.ha / 2) * self.skt * \
+        ((2 * (self.ha / 2)) / np.pi) ** 2 + np.pi * (self.ha / 2) * self.skt * \
+        (z - ((self.ha/2) - (2 * (self.ha/2))/np.pi))**2
         I_y_skin = 2 * ((self.skt * self.l**3 * (cos(self.theta))**2)/12 + self.skt * self.l * (0.505 - z - (self.l/2) *
         cos(self.theta))**2) + (self.spt**3 * self.ha)/12 + self.ha * self.spt * (z - self.ha)**2 + I_y_circ
 
