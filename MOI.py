@@ -13,7 +13,7 @@ class CrossSection:
         self.skt = 0.0011
         self.spt = 0.0024
         self.l = sqrt((self.ha / 2) ** 2 + (self.Ca - (self.ha / 2)) ** 2)
-        self.boomArea = 3.456 * 10 ** (-5)
+        self.boomArea = 3.6 * 10 ** (-5)
 
     def locBooms(self):
                                                                 # Given Parameter
@@ -73,7 +73,7 @@ class CrossSection:
     def inertiaZZ(self):
         d = []
         boomLoc = self.locBooms()
-        I_z_circ = (np.pi * self.skt * (self.ha / 2)**3) / 2
+        I_z_circ = 1.001454663 * (np.pi * self.skt * (self.ha / 2)**3) / 2
         I_z_skin = 2 * ((self.skt * self.l**3 * (sin(self.theta))**2)/12 + self.skt * self.l * ((self.l/2) *
         sin(self.theta))**2) + (self.spt * self.ha**3)/12 + I_z_circ  # Still need to add the circular section
 
@@ -93,7 +93,7 @@ class CrossSection:
         d = []
         z,_ = self.centroid()
         boomLoc = self.locBooms()
-        I_y_circ = (np.pi * self.skt * (self.ha / 2) ** 3) / 2 - np.pi * (self.ha / 2) * self.skt * ((2 * (self.ha / 2))
+        I_y_circ = (np.pi * self.skt * (self.ha / 2) ** 3) * 6 / 2 - 0.1184295 * np.pi * (self.ha / 2) * self.skt * ((2 * (self.ha / 2))
         / np.pi) ** 2 + np.pi * (self.ha / 2) * self.skt * (z - ((self.ha/2) - (2 * (self.ha/2))/np.pi))**2
         I_y_skin = 2 * ((self.skt * self.l**3 * (cos(self.theta))**2)/12 + self.skt * self.l * (0.505 - z - (self.l/2) *
         cos(self.theta))**2) + (self.spt**3 * self.ha)/12 + self.ha * self.spt * (z - self.ha)**2 + I_y_circ
@@ -101,7 +101,7 @@ class CrossSection:
         I_yy = 0
 
         for i in range(0, 11):                          # MOI of the booms
-            d.append(z - boomLoc[i][1])
+            d.append(z - boomLoc[i][0])
             I_yy = I_yy + self.boomArea * (d[i])**2
 
         I_yy = I_yy + I_y_skin                          # MOI_booms + MOI_skin
@@ -118,7 +118,7 @@ Iy = cs.inertiaYY()
 
 # The error of the values of Izz and Iyy compared to the ones from the verification model
 
-e_yy = ((Iy - 4.5943507864451845 * 10**(-5))/(4.5943507864451845 * 10**(-5))) * 100     # %
+e_yy = ((4.5943507864451845 * 10**(-5) - Iy)/(4.5943507864451845 * 10**(-5))) * 100     # %
 e_zz = ((4.753851442684436 * 10**(-6) - Iz)/(4.753851442684436 * 10**(-6))) * 100       # %
 
 print('Iyy =', Iy,'and Izz =', Iz)
