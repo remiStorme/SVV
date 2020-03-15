@@ -1,5 +1,5 @@
 ######################## IMPORTS ########################################################
-
+import itertools
 from numpy import *
 from math import pi
 from MOI import CrossSection
@@ -31,13 +31,13 @@ alpha = arctan(r/(Ca-r))
 A_i = pi * r ** 2 / 2
 A_ii = ha * (Ca - r) / 2
 Bi = wst * tst + hst * tst
-
 cs = CrossSection()
 boomLoc = cs.locBooms()
-boomArea = 3.456 * 10 ** (-5)
-z, y = cs.centroid()
-I_zz = 4.686*10**-6 #from verification
-I_yy = cs.inertiaZZ()
+boomArea = 3.6 * 10 ** (-5)
+I_zz = cs.inertiaZZ()
+I_yy = cs.inertiaYY()
+zcentr,ycentr=0.20362591085157106,0.0 #taken from verification model because numerical model Zsc is wrong
+G = 28e9
 
 ######################## DISCRETIZATION PARAMETERS ################################################
 
@@ -53,7 +53,7 @@ def getszyf():
     s2 = linspace(0, ladiag, N)
     s3 = s2
     s4 = linspace(0, -r, N)
-    s5 = s0
+    s5 = linspace((-pi/2), 0,N)
     s.extend((s0, s1, s2, s3, s4, s5))
 
     y = []
@@ -63,32 +63,36 @@ def getszyf():
     y1 = s[1]
     y2 = []
     for i in range(len(s[2])):
-        y2_i = ((ladiag - s[2][i]) / ladiag) * r
+        y2_i = r - (s[2][i])*sin(alpha)
         y2.append(y2_i)
-    y3 = [element - r for element in y2]
+    y3 = []
+    for i in range(len(s[2])):
+        y3_i = - (s[2][i])*sin(alpha)
+        y3.append(y3_i)
     y4 = [element * -1 for element in y1]
     y5=  []
-    for i in range(len(y0)):
-        y5.append(-y0[N - 1 - i])
+    for i in range(len(s[5])):
+        y5.append(-(cos(s[0][i])*r))
     y.extend((y0, y1, y2, y3, y4, y5))
 
     z= []
     z0=[]
     for i in range(len(s[0])):
-        z0.append(-(r-cos(s[0][i])*r))
-    z1= [r]*N
+        z0.append(((cos(s[0][i])*r)+(zcentr-r)))
+    z1= [zcentr-r]*N
     z2=[]
     for i in range(len(s[2])):
-        z2.append(-(r+s[2][i]*cos(alpha)))
+        z2_i = (zcentr-r)-s[2][i]*cos(alpha)
+        z2.append(z2_i)
     z3=[]
     for i in range(len(s[3])):
-        z3.append(-(Ca-s[3][i]*cos(alpha)))
-    z4= [-r]*N
+        z3_i = -(Ca-zcentr)+s[2][i]*cos(alpha)
+        z3.append(z3_i)
+    z4= [zcentr-r]*N
     z5=[]
     for i in range(len(s[5])):
-        z5.append(-(r-sin(s[5][i])*r))
+        z5.append(-(-(sin(s[0][i])*r+(zcentr-r))))
     z.extend((z0, z1, z2, z3, z4, z5))
-
     fy=[]
     fy0 = [element * tsk*r for element in y[0]]  # defines the function to be integrated = t_skin*y dy which becomes t_skin*r*sin(theta) dtheta
     fy1 = [element * tsp for element in y[1]]
@@ -157,7 +161,7 @@ def Ygetqbs(Vy):
     boomlst = [[1], [], [2, 3, 4, 5], [6, 7, 8, 9], [], [10]]
     for i in range(len(s)):  # for all the 6 segments
         qbs_i = []
-        if i == 0 or i == 2 or i == 3 or i == 5: #for sections with booms
+        if i == 0 or i == 2 or i==3 or i==5: #for sections with booms
             m = bindxlst[i][0]
             shearjump = 0
             for j in range(len(s[i])-1):  # for all the discretized points in the segment
@@ -170,13 +174,13 @@ def Ygetqbs(Vy):
                     qbs_i.append((-Vy / I_zz * trapezoid(fy[i], s[i])[j]) + shearjump)  #  qbsi[-1] adds the constant value of jump in shear due to the boom which is equal to the shear flow at the boom minus the one before
                     if bindxlst[i].index(m) != (len(bindxlst[i]) - 1):  # if you didnt reach the last boom in the section yet
                         m = bindxlst[i][bindxlst[i].index(m) + 1]  # go to next boom --> increase index m
-        else: #for sections without booms
-            for j in range(len(s[i])-1):
+        else:
+            for j in range(len(s[i]) - 1):
                 qbs_i.append(-Vy / I_zz * trapezoid(fy[i], s[i])[j])
         qbs.append(qbs_i)
-    qbs[2]=[element + (qbs[0][-1]+qbs[1][-1]) for element in qbs[2]] # flow in section 1 and 2 is added to flow computed for section 3
-    qbs[3]=[element + qbs[2][-1] for element in qbs[3]] # flow in section 3 is added to flow computed for section 4
-    qbs[5]=[element + (qbs[3][-1]-qbs[4][-1]) for element in qbs[5]] # flow in section 4 is added and flow in 5 subtracted to flow computed for section 6
+    qbs[2]=[element + ((qbs[0][-1])+(qbs[1][-1])) for element in qbs[2]] # flow in section 1 and 2 is added to flow computed for section 3
+    qbs[3]=[element + (qbs[2][-1]) for element in qbs[3]] # flow in section 3 is added to flow computed for section 4
+    qbs[5]=[element + ((qbs[3][-1])-(qbs[4][-1])) for element in qbs[5]] # flow in section 4 is added and flow in 5 subtracted to flow computed for section 6
     return qbs
 
 def Ygetqs0(qbs):  # calculates redundant shear flow qs01, qs02 for the two cells
@@ -185,8 +189,6 @@ def Ygetqs0(qbs):  # calculates redundant shear flow qs01, qs02 for the two cell
         intqbs.append(trapezoid(qbs[i], s[i])[-1])
         if i == 0 or i == 5:
             intqbs[-1] *= r
-        if i == 4:
-            intqbs[-1] *= -1
     c1 = (1 / tsk) * intqbs[0] - (1 / tsp) * intqbs[1] - 1 / tsp * intqbs[4] + 1/ tsk * intqbs[5]
     c2 = 1 / tsp * intqbs[1] + 1 / tsk * intqbs[2] + 1 / tsk * intqbs[3] + 1 / tsp * intqbs[4]
     A = array([[r * pi / tsk + 2 * r / tsp, -2 * r / tsp], [-2 * r/ tsp, 2 * ladiag / tsk + 2 * r / tsp]])
@@ -200,18 +202,24 @@ def Ygetq(qbs,qs01,qs02):
     q=[]
     for i in range(len(s)):
         q_i=[]
-        if i==0 or i==5:
+        if i==0:
             for j in range(len(qbs[i])):
                 q_i.append(qbs[i][j]+qs01)
         if i==1:
             for j in range(len(qbs[i])):
                 q_i.append(qbs[i][j]-qs01+qs02)
-        if i==2 or i==3:
+        if i==2:
+            for j in range(len(qbs[i])):
+                q_i.append(qbs[i][j]+qs02)
+        if i==3:
             for j in range(len(qbs[i])):
                 q_i.append(qbs[i][j]+qs02)
         if i==4:
             for j in range(len(qbs[i])):
-                q_i.append(qbs[i][j]+qs01-qs02)
+                q_i.append(qbs[i][j]-qs01+qs02)
+        if i==5:
+            for j in range(len(qbs[i])):
+                q_i.append(qbs[i][j]+qs01)
         q.append(q_i)
     return q
 
@@ -222,64 +230,79 @@ def Zgetq(Vz):
     boomlst = [[1], [], [2, 3, 4, 5], [6, 7, 8, 9], [], [10]]
     for i in range(len(s)):  # for all the 6 segments
         q_i = []
-        if i == 0 or i == 2 or i == 3 or i == 5: #for sections with booms
+        if i == 0 or i == 2: #for sections with booms
             m = bindxlst[i][0]
             shearjump = 0
             for j in range(len(s[i])-1):  # for all the discretized points in the segment
                 if j < m:
-                    q_i.append(-Vz / I_yy* trapezoid(fz[i], s[i])[j] + shearjump)
+                    q_i.append(-Vz / I_yy * trapezoid(fz[i], s[i])[j] + shearjump)
                 elif j == m:
-                    q_i.append(-Vz / I_yy * (boomArea * boomLoc[boomlst[i][bindxlst[i].index(m)]][0]) + q_i[-1])
-                    shearjump += (-Vz / I_yy * (boomArea * boomLoc[boomlst[i][bindxlst[i].index(m)]][0]))
+                    q_i.append(-Vz / I_yy * (boomArea * -(boomLoc[boomlst[i][bindxlst[i].index(m)]][0]-zcentr)) + q_i[-1])
+                    shearjump += (-Vz / I_yy * (boomArea * (-(boomLoc[boomlst[i][bindxlst[i].index(m)]][0]-zcentr))))
                 elif j > m:
-                    q_i.append((-Vz / I_yy * trapezoid(fz[i], s[i])[j]) + shearjump)  #qbsi[-1] adds the constant value of jump in shear due to the boom which is equal to the shear flow at the boom minus the one before
+                    q_i.append((-Vz / I_yy * trapezoid(fz[i], s[i])[j]) + shearjump)  #  qbsi[-1] adds the constant value of jump in shear due to the boom which is equal to the shear flow at the boom minus the one before
                     if bindxlst[i].index(m) != (len(bindxlst[i]) - 1):  # if you didnt reach the last boom in the section yet
                         m = bindxlst[i][bindxlst[i].index(m) + 1]  # go to next boom --> increase index m
-        else: #for sections without booms
+        if i==1: #for spar without booms
             for j in range(len(s[i])-1):
                 q_i.append(-Vz / I_yy * trapezoid(fz[i], s[i])[j])
+        if i==3:
+            qz[2] = [element + ((qz[0][-1]) + (qz[1][-1])) for element in qz[2]]  # flow in section 1 and 2 is added to flow computed for section 3
+            q_i=[-element for element in qz[2][::-1]]
+        if i==4:
+            q_i=[-element for element in qz[1]]
+        if i==5:
+            q_i=[-element for element in qz[0][::-1]]
         qz.append(q_i)
-    qz[2]=[element + (qz[0][-1]+qz[1][-1]) for element in qz[2]] # flow in section 1 and 2 is added to flow computed for section 3
-    qz[3]=[element + qz[2][-1] for element in qz[3]] # flow in section 3 is added to flow computed for section 4
-    qz[5]=[element + (qz[3][-1]-qz[4][-1]) for element in qz[5]] # flow in section 4 is added and flow in 5 subtracted to flow computed for section 6
     return qz
 
-######################## SHEAR FLOW DUE TO T #####################################################
+######################## SHEAR FLOW DUE TO T AND TORSIONAL CONSTANT #####################################################
 
 def Tgetq(T):
-    qbs = Ygetqbs(1)
-    num_i = []
-    for i in range(6):
-        num_i.append(trapezoid(qbs[i], s[i])[-1])  # the last element of the list that "trapezoid" generates is the value of the integral
-    D = array([[-pi*r/(tsk * A_i) - 2*r/(tsp * A_i)- 2*r/(tsp * A_ii), 2*l/(tsk * A_ii) + 2*r/(tsp * A_ii) + 2*r/(tsp * A_i)],
-                  [2 * A_i, 2 * A_ii]])
-    E = array([[num_i[0]/tsk - 2*num_i[1]/tsp + 2*num_i[4]/tsp - num_i[5]/tsk - num_i[2]/tsk - num_i[3]/tsk],
-               [T]])
+    A = zeros((3,3))
+    b = zeros(3)
 
-    F = linalg.solve(D, E)
+    ### First row
+    A[0, 0] = 2. * A_i
+    A[0, 1] = 2. * A_ii
+    b[0] = -T
 
-    q01n = F[1][0]
-    q02n = F[1][0]
+    ### Second row
+    A[1, 0] = (r * pi / tsk + 2 * r / tsp) / (2 * A_i)
+    A[1, 1] = (-2 * r / tsp) / (2 * A_i)
+    A[1, 2] = -1.
+    b[1] = 0.
+
+    ### Third row
+    A[2, 0] = (-2 * r / tsp) / (2 * A_ii)
+    A[2, 1] = (2 * ladiag / tsk + 2 * r / tsp) / (2 * A_ii)
+    A[2, 2] = -1
+    b[2] = 0.
+
+    F = linalg.solve(A, b)
+    q01n = F[0]
+    q02n = F[1]
+    J = -1/F[2]
 
     Tq=[]
     for i in range(len(s)):
         Tq_j = []
         if i==0 or i==5:
-            for j in range(len(qbs[i])):
-                Tq_j.append(qbs[i][j]+q01n)
+            for j in range(len(s[i])-1):
+                Tq_j.append(q01n)
         if i==1:
-            for j in range(len(qbs[i])):
-                Tq_j.append(qbs[i][j]-q01n+q02n)
+            for j in range(len(s[i])-1):
+                Tq_j.append(-q01n+q02n)
         if i==2 or i==3:
-            for j in range(len(qbs[i])):
-                Tq_j.append(qbs[i][j]+q02n)
+            for j in range(len(s[i])-1):
+                Tq_j.append(q02n)
         if i==4:
-            for j in range(len(qbs[i])):
-                Tq_j.append(qbs[i][j]+q01n-q02n)
+            for j in range(len(s[i])-1):
+                Tq_j.append(-q01n+q02n)
         Tq.append(Tq_j)
-    return Tq
+    return Tq, J
 
-############################# PROGRAM, SHEAR CENTRE AND SHEAR FLOWS ###################################################
+############################# PROGRAM ###################################################
 
 # initialize values
 s,z,y,fy,fz = getszyf()
@@ -292,7 +315,8 @@ x_sz, y_sz = ifd.x_sz, ifd.y_sz #x_sz is the slice at which sz is being evaluate
 qy=[]
 for i in range(len(x_sy)):
     qy_slice_i=[]
-    Vy=y_sy[i][0]
+    # Vy=y_sy[i][0]
+    Vy=0                                                 # change here!!
     qbs_slice_i=Ygetqbs(Vy)
     qs01_slice_i,qs02_slice_i = Ygetqs0(qbs_slice_i)
     qy_slice_i=(Ygetq(qbs_slice_i,qs01_slice_i,qs02_slice_i))
@@ -300,23 +324,23 @@ for i in range(len(x_sy)):
 
 # determine shear flow due to Vz
 qz=[]
-for i in range(len(x_sz)):
+for i in range(len(x_sz)): #for 40 slices
     qz_slice_i=[]
-    Vz=y_sz[i][0]
+    # Vz=y_sz[i][0]
+    Vz=0                                                # change here!!
     qz_slice_i=(Zgetq(Vz))
     qz.append(qz_slice_i)
-
 
 # determine shear flow due to T
 qt=[]
 for i in range(len(x_T)):
     qt_slice_i=[]
-    T=y_T[i][0]
-    qt_slice_i=(Tgetq(T))
+    # T=y_T[i][0]
+    T=1                                                 # change here!!
+    qt_slice_i,J=(Tgetq(T))
     qt.append(qt_slice_i)
 
-
-#determine combined shear flow
+# determine maximum shear stress along aileron
 
 shearstress=[]
 for i in range(len(qy)): #for all 40 slices
@@ -333,18 +357,94 @@ for i in range(len(qy)): #for all 40 slices
         qcombo_j.append(maxshstrsec)
         maxshstrslice=max(qcombo_j)
     shearstress.append(maxshstrslice)
-maxshearstress=max(shearstress)
-slicemaxshear=shearstress.index(max(shearstress))
-print(slicemaxshear)
-print(maxshearstress)
+maxss=max(shearstress)
+Nslicemaxss=shearstress.index(max(shearstress))
+maxsslocation=(la/40)*Nslicemaxss
+print("Maximum shear stress=",maxss/10**6,"[MPa]","at location x=",maxsslocation,"[m] (from the fuselage)")
+
+# determine total shear flow for crossection # Ncs=0
+Ncs=0
+qy = array((qy[Ncs])).flatten()
+qz = array((qz[Ncs])).flatten()
+qt = array((qt[Ncs])).flatten()
+
+q = qy + qz + qt
+
+# determine shear stress in the crossection # Ncs=0
+zvaluesregion1 = (array(z[0])[:-1] + array(z[0])[1:]) / 2
+zvaluesregion2 = (array(z[1])[:-1] + array(z[1])[1:]) / 2
+zvaluesregion3 = (array(z[2])[:-1] + array(z[2])[1:]) / 2
+zvaluesregion4 = (array(z[3])[:-1] + array(z[3])[1:]) / 2
+zvaluesregion5 = (array(z[4])[:-1] + array(z[4])[1:]) / 2
+zvaluesregion6 = (array(z[5])[:-1] + array(z[5])[1:]) / 2
+
+yvaluesregion1 = (array(y[0])[:-1] + array(y[0])[1:]) / 2
+yvaluesregion2 = (array(y[1])[:-1] + array(y[1])[1:]) / 2
+yvaluesregion3 = (array(y[2])[:-1] + array(y[2])[1:]) / 2
+yvaluesregion4 = (array(y[3])[:-1] + array(y[3])[1:]) / 2
+yvaluesregion5 = (array(y[4])[:-1] + array(y[4])[1:]) / 2
+yvaluesregion6 = (array(y[5])[:-1] + array(y[5])[1:]) / 2
+
+tau0 = q[:N-1] / tsk
+tau1 = q[N-1:2*(N-1)] / tsp
+tau2 = q[2*(N-1):3*(N-1)] / tsk
+tau3 = q[3*(N-1):4*(N-1)] / tsk
+tau4 = q[4*(N-1):5*(N-1)] / tsp
+tau5 = q[5*(N-1):] / tsk
+
+z = concatenate((zvaluesregion1,zvaluesregion2,zvaluesregion3,zvaluesregion4,zvaluesregion5,zvaluesregion6))
+y = concatenate((yvaluesregion1,yvaluesregion2,yvaluesregion3,yvaluesregion4,yvaluesregion5,yvaluesregion6))
+tau = concatenate((tau0,tau1,tau2,tau3,tau4,tau5))
+
+# Von Mises from selected My, Mz, tau for crossection # Ncs=0
+My = 0                                                            # change here!!                                                          # change here!!
+sigma = My * z / I_yy + T * y / I_zz
+VM = sqrt(sigma**2 + 3 * tau**2)
 
 # determine shear centre
 qbs=Ygetqbs(1)
 qs01,qs02=Ygetqs0(qbs)
 qy=Ygetq(qbs,qs01,qs02)
 zsc= getsc()-r
-print(zsc)
+print("Shear centre location=",zsc,"[m] from the spar, right is positive")
 
+# plot shear flow
+fig, ax = plt.subplots()
+sfplot=plt.scatter(z,y, c=q,alpha=1,cmap='jet',vmin = -max(abs(q)),vmax = max(abs(q)))
+ax.set_xlim(0.3,-0.35,)
+cbar = plt.colorbar(sfplot)
+cbar.set_label("Shear flow [N/m]")
+plt.xlabel("z [m]")
+plt.ylabel("y [m]")
+plt.show()
 
+# plot shear stress
+fig, ax = plt.subplots()
+sfplot=plt.scatter(z,y, c=tau,alpha=1,cmap='jet',vmin = -max(abs(tau)),vmax = max(abs(tau)))
+ax.set_xlim(0.3,-0.35,)
+cbar = plt.colorbar(sfplot)
+cbar.set_label("Shear stress [Pa]")
+plt.xlabel("z [m]")
+plt.ylabel("y [m]")
+plt.show()
 
+# plot bending stress
+fig, ax = plt.subplots()
+sfplot=plt.scatter(z,y, c=sigma,alpha=1,cmap='jet',vmin = -max(abs(sigma)),vmax = max(abs(sigma)))
+ax.set_xlim(0.3,-0.35,)
+cbar = plt.colorbar(sfplot)
+cbar.set_label("Bending stress [Pa]")
+plt.xlabel("z [m]")
+plt.ylabel("y [m]")
+plt.show()
+
+# plot Von Mises stress
+fig, ax = plt.subplots()
+sfplot=plt.scatter(z,y, c=VM,alpha=1,cmap='jet',vmin = 0,vmax = max(abs(VM)))
+ax.set_xlim(0.3,-0.35,)
+cbar = plt.colorbar(sfplot)
+cbar.set_label("Von Mises [N/m]")
+plt.xlabel("z [m]")
+plt.ylabel("y [m]")
+plt.show()
 
