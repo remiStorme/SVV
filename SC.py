@@ -33,7 +33,7 @@ A_ii = ha * (Ca - r) / 2
 Bi = wst * tst + hst * tst
 cs = CrossSection()
 boomLoc = cs.locBooms()
-boomArea = 3.6 * 10 ** (-5)
+boomArea = 0#3.6 * 10 ** (-5)
 I_zz = cs.inertiaZZ()
 I_yy = cs.inertiaYY()
 zcentr,ycentr=0.20362591085157106,0.0 #taken from verification model because numerical model Zsc is wrong
@@ -316,7 +316,7 @@ qy=[]
 for i in range(len(x_sy)):
     qy_slice_i=[]
     # Vy=y_sy[i][0]
-    Vy=0                                                 # change here!!
+    Vy=1                                                 # change here!!
     qbs_slice_i=Ygetqbs(Vy)
     qs01_slice_i,qs02_slice_i = Ygetqs0(qbs_slice_i)
     qy_slice_i=(Ygetq(qbs_slice_i,qs01_slice_i,qs02_slice_i))
@@ -400,6 +400,10 @@ tau = concatenate((tau0,tau1,tau2,tau3,tau4,tau5))
 My = 0                                                            # change here!!                                                          # change here!!
 sigma = My * z / I_yy + T * y / I_zz
 VM = sqrt(sigma**2 + 3 * tau**2)
+
+# determine torsional stiffness
+Tq,J= Tgetq(1)
+print("Torsional stiffness=", J,"[Nm/rad]")
 
 # determine shear centre
 qbs=Ygetqbs(1)
